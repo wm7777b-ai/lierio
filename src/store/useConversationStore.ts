@@ -220,7 +220,7 @@ const applySnapshotByIndex = (
   }));
 };
 
-const initialCase = getScenarioDefaultCase("service");
+const initialCase = MOCK_CASES[0] ?? getScenarioDefaultCase("service");
 
 export const useConversationStore = create<ConversationStoreState>((set, get) => ({
   ...buildIdleStateFromCase(initialCase, "auto"),

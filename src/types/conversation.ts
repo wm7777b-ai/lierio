@@ -7,18 +7,14 @@ export type PageStage =
   | "ready"
   | "submitted";
 
-export type ScenarioType = "service" | "outbound";
+export type ScenarioType = string;
 export type AnalysisMode = "auto" | "manual";
 
 export type EmotionLevel = "平稳" | "不满" | "激动" | "高风险";
 
 export type RiskLevel = "低" | "中" | "高";
 
-export type RecommendedAction =
-  | "继续标准处理"
-  | "优先安抚并建单"
-  | "升级人工关注"
-  | "建议高优先级跟进";
+export type RecommendedAction = string;
 
 export interface ConversationMeta {
   id: string;
@@ -31,6 +27,14 @@ export interface ConversationMeta {
   customerTags: string[];
   historyTags: string[];
   currentStatus: string;
+  phone?: string;
+  uid?: string;
+  hasHistory?: boolean;
+  lastTopic?: string;
+  lastDisposition?: string;
+  historyInboundCount?: number;
+  boundDeviceInfo?: string;
+  deviceFaultCode?: string;
 }
 
 export interface ConversationTurn {
@@ -81,16 +85,24 @@ export interface ResolutionState {
 export interface ReviewState {
   score: number;
   confidence: "高" | "中" | "低";
+  confidenceScore?: number;
   shouldFallback: boolean;
   fallbackReason: string;
   currentAlert?: string;
+  depositType?: "normal_auto_deposit" | "candidate_badcase_auto_mark";
+  candidateBadcase?: boolean;
+  lightFeedbackEnabled?: boolean;
+  depositReason?: string;
 }
 
 export interface TurnSnapshot {
+  conversationSummary?: string;
   currentIntent: string;
   emotion: EmotionLevel;
+  currentStage?: string;
   riskLevel: RiskLevel;
   riskSignals: string[];
+  keyFacts?: string[];
   missingInfo: string[];
   draft: {
     caseDetail: string;
@@ -107,6 +119,13 @@ export interface TurnSnapshot {
   };
   review: {
     currentAlert: string;
+  };
+  suggestion?: {
+    routeType: "silent_update" | "light_suggestion" | "strong_alert";
+    triggerReason: string | null;
+    currentHandlingAdvice: string;
+    requiresImmediateHandling: boolean;
+    suggestionContent: string[];
   };
 }
 

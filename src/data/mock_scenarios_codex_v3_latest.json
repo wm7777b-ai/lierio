@@ -1,0 +1,1289 @@
+{
+  "version": "v3_latest",
+  "updatedAt": "2026-03-22",
+  "description": "基于最新产品讨论整理的统一 mock 数据，适配现有 ConversationCase 根对象与渐进式 adapter 改造方案。",
+  "workflowPlacement": {
+    "recommendedStage": "coding前-全局前置（页面信息结构与模块能力架构确定后、模块开发前）",
+    "reason": "先用统一 mock 固定产品语义与状态流，后续各 phase 只按模块增量映射与开发，避免每轮重新脑补业务输出。"
+  },
+  "cases": [
+    {
+      "case_id": "case_standard_001",
+      "scenario": "standard_service_query",
+      "header": {
+        "systemName": "客服会话智能处置台",
+        "moduleName": "客服",
+        "analysisStatus": "idle",
+        "playbackMode": "auto",
+        "currentTurnIndex": 0,
+        "totalTurns": 5,
+        "canStartAnalysis": true,
+        "primaryActionText": "开始分析"
+      },
+      "meta": {
+        "id": "S-20260322-001",
+        "scenario": "standard_service_query",
+        "channel": "电话",
+        "accessTime": "2026-03-22 10:00:00",
+        "queue": "售后咨询队列",
+        "callDuration": 286,
+        "customerType": "个人用户",
+        "customerTags": [
+          "普通用户",
+          "咨询类来电"
+        ],
+        "historyTags": [
+          "有历史咨询"
+        ],
+        "currentStatus": "进行中",
+        "phone": "138****4821",
+        "uid": "U1004821",
+        "hasHistory": true,
+        "lastTopic": "预约进度查询",
+        "lastDisposition": "已解释并结束",
+        "historyInboundCount": 2,
+        "boundDeviceInfo": "",
+        "deviceFaultCode": ""
+      },
+      "turns": [
+        {
+          "id": "standard_t1",
+          "time": "10:01:00",
+          "speaker": "customer",
+          "text": "你好，我想确认一下，我昨天提交的上门维修申请，现在还没有人联系我。",
+          "recognition": {
+            "intent": "查询维修申请进度",
+            "emotion": "neutral",
+            "risk": "low"
+          },
+          "highlight": true
+        },
+        {
+          "id": "standard_t2",
+          "time": "10:02:00",
+          "speaker": "agent",
+          "text": "好的，我先帮您查一下，请问您是昨天下午提交的吗？",
+          "recognition": {
+            "intent": "核实申请时间",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t3",
+          "time": "10:03:00",
+          "speaker": "customer",
+          "text": "对，昨天下午两点左右提交的。",
+          "recognition": {
+            "intent": "确认申请时间",
+            "emotion": "neutral",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t4",
+          "time": "10:04:00",
+          "speaker": "agent",
+          "text": "我这边查到申请已受理，当前状态是待调度，通常24小时内会有首次联系。",
+          "recognition": {
+            "intent": "解释当前处理进度",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t5",
+          "time": "10:05:00",
+          "speaker": "customer",
+          "text": "那就是今天之内会联系我，对吗？",
+          "recognition": {
+            "intent": "确认联系时效",
+            "emotion": "slightly_anxious",
+            "risk": "low"
+          },
+          "highlight": true
+        },
+        {
+          "id": "standard_t6",
+          "time": "10:06:00",
+          "speaker": "agent",
+          "text": "是的，一般会在今天内联系您。如果超时未联系，您可以再来电，我们会帮您催单。",
+          "recognition": {
+            "intent": "安抚并说明时效",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t7",
+          "time": "10:07:00",
+          "speaker": "customer",
+          "text": "好的，那我先等等。",
+          "recognition": {
+            "intent": "接受解释",
+            "emotion": "relieved",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t8",
+          "time": "10:08:00",
+          "speaker": "agent",
+          "text": "好的，感谢您的来电。",
+          "recognition": {
+            "intent": "结束会话",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t9",
+          "time": "10:09:00",
+          "speaker": "customer",
+          "text": "嗯，再见。",
+          "recognition": {
+            "intent": "结束会话",
+            "emotion": "neutral",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "standard_t10",
+          "time": "10:10:00",
+          "speaker": "agent",
+          "text": "再见。",
+          "recognition": {
+            "intent": "结束会话",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        }
+      ],
+      "snapshots": [
+        {
+          "conversationSummary": "用户来电咨询上门维修申请进度，当前处于信息确认阶段。",
+          "currentIntent": "查询维修申请进度",
+          "emotion": "neutral",
+          "currentStage": "信息确认中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "用户已说明为上门维修申请进度问题"
+          ],
+          "missingInfo": [
+            "提交时间待确认"
+          ],
+          "draft": {
+            "caseDetail": "用户咨询维修申请进度",
+            "customerDemand": "确认是否有人联系",
+            "customerPainPoint": "等待处理进度不明确",
+            "riskPoint": "无",
+            "ticketTitle": "维修申请进度查询"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "继续核实并说明进度",
+            "priority": "low",
+            "nextStep": "确认申请时间"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "继续核实申请时间",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        },
+        {
+          "conversationSummary": "已确认用户申请提交时间，系统进入进度解释阶段。",
+          "currentIntent": "确认处理时效",
+          "emotion": "neutral",
+          "currentStage": "进度解释中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "申请提交时间为昨天下午两点左右",
+            "申请已受理，状态待调度"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "申请已受理，当前待调度",
+            "customerDemand": "了解处理时效",
+            "customerPainPoint": "无人联系",
+            "riskPoint": "无",
+            "ticketTitle": "维修申请进度查询"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "说明24小时首次联系规则",
+            "priority": "low",
+            "nextStep": "安抚并结束会话"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "直接说明当前处理进度与时效",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        },
+        {
+          "conversationSummary": "用户进一步确认联系时效，系统判断为低风险标准问询。",
+          "currentIntent": "确认联系时效",
+          "emotion": "slightly_anxious",
+          "currentStage": "时效确认中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "用户关注是否今天内会联系",
+            "当前无升级风险"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "用户追问是否今日内会联系",
+            "customerDemand": "获得明确时间预期",
+            "customerPainPoint": "担心被遗漏",
+            "riskPoint": "无",
+            "ticketTitle": "维修申请时效说明"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "直接答复并告知超时再来电",
+            "priority": "low",
+            "nextStep": "完成解释"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "明确联系时效并给出超时处理口径",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        },
+        {
+          "conversationSummary": "用户接受解释，会话进入收口阶段。",
+          "currentIntent": "接受解释",
+          "emotion": "relieved",
+          "currentStage": "收口中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "用户接受当前解释",
+            "无需进一步处理"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "用户已接受解释",
+            "customerDemand": "确认后续是否联系",
+            "customerPainPoint": "等待焦虑已缓解",
+            "riskPoint": "无",
+            "ticketTitle": "维修申请进度解释完成"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "直接归档",
+            "priority": "low",
+            "nextStep": "生成归档草稿"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "准备结束会话",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        },
+        {
+          "conversationSummary": "会话已结束，信息完整，可直接归档。",
+          "currentIntent": "会话结束",
+          "emotion": "neutral",
+          "currentStage": "已结束",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "申请状态待调度",
+            "用户接受解释",
+            "无需追加动作"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "进度查询已解释完成",
+            "customerDemand": "确认联系时效",
+            "customerPainPoint": "无人联系担忧",
+            "riskPoint": "无",
+            "ticketTitle": "维修申请进度查询"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "直接归档",
+            "priority": "low",
+            "nextStep": "无额外动作"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "已可直接归档",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        }
+      ],
+      "monitoring": {
+        "currentIntent": "会话结束",
+        "emotion": "neutral",
+        "riskSignals": [],
+        "missingInfo": []
+      },
+      "draft": {
+        "caseDetail": "用户咨询昨日提交的上门维修申请处理进度",
+        "customerDemand": "确认当前是否会有人联系以及联系时效",
+        "customerPainPoint": "等待期间信息不透明",
+        "riskPoint": "无",
+        "suggestedTicketTitle": "维修申请进度查询",
+        "suggestCreateTicket": false
+      },
+      "finalResult": {
+        "summary": "用户来电咨询昨日提交的上门维修申请进度，座席查询后告知申请已受理，当前待调度，预计24小时内完成首次联系，用户接受解释。",
+        "category": "进度查询",
+        "priority": "low",
+        "riskLevel": "low"
+      },
+      "resolution": {
+        "recommendedAction": "直接归档",
+        "suggestedPriority": "low",
+        "nextStepAdvice": "无需额外动作",
+        "reason": "标准低风险咨询，已解释清楚且用户接受",
+        "sopTitle": "进度查询标准回复SOP",
+        "escalate": false
+      },
+      "review": {
+        "score": 92,
+        "confidence": 0.91,
+        "shouldFallback": false,
+        "fallbackReason": "",
+        "currentAlert": "",
+        "depositType": "normal_auto_deposit",
+        "candidateBadcase": false,
+        "lightFeedbackEnabled": true,
+        "depositReason": "建议被接受，人工修改很少，正常自动沉淀"
+      }
+    },
+    {
+      "case_id": "case_missing_002",
+      "scenario": "missing_info_fill_ticket",
+      "header": {
+        "systemName": "客服会话智能处置台",
+        "moduleName": "客服",
+        "analysisStatus": "idle",
+        "playbackMode": "step",
+        "currentTurnIndex": 0,
+        "totalTurns": 6,
+        "canStartAnalysis": true,
+        "primaryActionText": "开始分析"
+      },
+      "meta": {
+        "id": "S-20260322-002",
+        "scenario": "missing_info_fill_ticket",
+        "channel": "电话",
+        "accessTime": "2026-03-22 11:00:00",
+        "queue": "设备报障队列",
+        "callDuration": 402,
+        "customerType": "个人用户",
+        "customerTags": [
+          "设备类来电",
+          "需建单"
+        ],
+        "historyTags": [
+          "有历史咨询"
+        ],
+        "currentStatus": "进行中",
+        "phone": "138****4821",
+        "uid": "U1004821",
+        "hasHistory": true,
+        "lastTopic": "监控偶发离线咨询",
+        "lastDisposition": "已解释观察，无正式建单",
+        "historyInboundCount": 2,
+        "boundDeviceInfo": "客厅摄像头 CAM-01",
+        "deviceFaultCode": "E-OFFLINE"
+      },
+      "turns": [
+        {
+          "id": "missing_t1",
+          "time": "11:01:00",
+          "speaker": "customer",
+          "text": "喂，你好，我这边设备一直有问题，用不了。",
+          "recognition": {
+            "intent": "反馈设备异常",
+            "emotion": "anxious",
+            "risk": "low"
+          },
+          "highlight": true
+        },
+        {
+          "id": "missing_t2",
+          "time": "11:02:00",
+          "speaker": "agent",
+          "text": "好的，我先帮您记录一下。请问是什么设备出了问题？",
+          "recognition": {
+            "intent": "确认设备对象",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t3",
+          "time": "11:03:00",
+          "speaker": "customer",
+          "text": "就是家里那个监控。",
+          "recognition": {
+            "intent": "补充设备对象",
+            "emotion": "neutral",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t4",
+          "time": "11:04:00",
+          "speaker": "agent",
+          "text": "好的，请问现在具体是什么现象？",
+          "recognition": {
+            "intent": "确认故障现象",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t5",
+          "time": "11:05:00",
+          "speaker": "customer",
+          "text": "画面老是看不到。",
+          "recognition": {
+            "intent": "描述故障现象",
+            "emotion": "anxious",
+            "risk": "low"
+          },
+          "highlight": true
+        },
+        {
+          "id": "missing_t6",
+          "time": "11:06:00",
+          "speaker": "agent",
+          "text": "明白了。请问是一直离线，还是偶尔恢复？",
+          "recognition": {
+            "intent": "补问状态持续性",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t7",
+          "time": "11:07:00",
+          "speaker": "customer",
+          "text": "今天早上开始一直离线，到现在都不行。",
+          "recognition": {
+            "intent": "补充发生时间和持续性",
+            "emotion": "anxious",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t8",
+          "time": "11:08:00",
+          "speaker": "agent",
+          "text": "好的，我再确认一下设备安装位置和账号尾号，方便后续处理。",
+          "recognition": {
+            "intent": "补充关键字段",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t9",
+          "time": "11:09:00",
+          "speaker": "customer",
+          "text": "装在客厅，账号尾号是4821。",
+          "recognition": {
+            "intent": "补全关键信息",
+            "emotion": "neutral",
+            "risk": "low"
+          },
+          "highlight": true
+        },
+        {
+          "id": "missing_t10",
+          "time": "11:10:00",
+          "speaker": "agent",
+          "text": "好的，我这边为您登记报障工单，后续会有专人联系您。",
+          "recognition": {
+            "intent": "给出处理方案",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t11",
+          "time": "11:11:00",
+          "speaker": "customer",
+          "text": "好，那麻烦你了。",
+          "recognition": {
+            "intent": "接受方案",
+            "emotion": "relieved",
+            "risk": "low"
+          },
+          "highlight": false
+        },
+        {
+          "id": "missing_t12",
+          "time": "11:12:00",
+          "speaker": "agent",
+          "text": "不客气。",
+          "recognition": {
+            "intent": "结束会话",
+            "emotion": "calm",
+            "risk": "low"
+          },
+          "highlight": false
+        }
+      ],
+      "snapshots": [
+        {
+          "conversationSummary": "用户反馈设备无法使用，但关键信息不足。",
+          "currentIntent": "反馈设备异常",
+          "emotion": "anxious",
+          "currentStage": "信息收集中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "用户反馈家中设备无法使用"
+          ],
+          "missingInfo": [
+            "设备对象",
+            "故障现象",
+            "发生时间",
+            "是否持续"
+          ],
+          "draft": {
+            "caseDetail": "用户反馈设备异常但描述模糊",
+            "customerDemand": "希望尽快恢复使用",
+            "customerPainPoint": "设备无法正常工作",
+            "riskPoint": "无",
+            "ticketTitle": "待补全设备报障信息"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "继续补问信息",
+            "priority": "medium",
+            "nextStep": "补全设备对象"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "light_suggestion",
+            "triggerReason": "关键信息不足，建议先补问设备对象与具体现象",
+            "currentHandlingAdvice": "建议补问设备对象与故障现象",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "确认具体设备类型",
+              "确认故障现象",
+              "确认发生时间",
+              "确认是否持续发生"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "已确认是监控设备，但仍缺少故障细节。",
+          "currentIntent": "监控设备报障",
+          "emotion": "neutral",
+          "currentStage": "信息收集中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "设备对象为监控"
+          ],
+          "missingInfo": [
+            "具体故障现象",
+            "发生时间",
+            "是否持续"
+          ],
+          "draft": {
+            "caseDetail": "监控设备出现异常，故障细节待补全",
+            "customerDemand": "尽快恢复监控画面",
+            "customerPainPoint": "看不到画面",
+            "riskPoint": "无",
+            "ticketTitle": "监控设备异常待补问"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "继续补问故障细节",
+            "priority": "medium",
+            "nextStep": "确认故障现象"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "light_suggestion",
+            "triggerReason": "设备对象已明确，建议继续补问故障现象与持续性",
+            "currentHandlingAdvice": "建议继续补问现象与持续性",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "确认当前具体现象",
+              "确认从何时开始",
+              "确认是否持续发生"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "已确认画面无法查看，进入状态补全阶段。",
+          "currentIntent": "监控画面不可见",
+          "emotion": "anxious",
+          "currentStage": "信息收集中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "设备为监控",
+            "故障现象为画面无法查看"
+          ],
+          "missingInfo": [
+            "发生时间",
+            "是否持续",
+            "安装位置",
+            "账号信息"
+          ],
+          "draft": {
+            "caseDetail": "监控画面无法查看",
+            "customerDemand": "恢复设备可用",
+            "customerPainPoint": "无法查看监控画面",
+            "riskPoint": "无",
+            "ticketTitle": "监控画面不可见"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "继续补全关键信息",
+            "priority": "medium",
+            "nextStep": "确认发生时间"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "light_suggestion",
+            "triggerReason": "关键信息仍不完整，建议确认发生时间与是否持续",
+            "currentHandlingAdvice": "建议补问发生时间与持续性",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "确认从何时开始",
+              "确认是否持续离线",
+              "后续准备建单"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "已确认从今天早上开始持续离线，已具备建单基础。",
+          "currentIntent": "提交故障处理请求",
+          "emotion": "anxious",
+          "currentStage": "建单准备中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "今天早上开始持续离线",
+            "问题持续未恢复"
+          ],
+          "missingInfo": [
+            "安装位置",
+            "账号尾号"
+          ],
+          "draft": {
+            "caseDetail": "监控设备自今天早上起持续离线",
+            "customerDemand": "提交故障处理请求",
+            "customerPainPoint": "无法查看监控",
+            "riskPoint": "无",
+            "ticketTitle": "监控设备离线报障"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "补全建单字段",
+            "priority": "medium",
+            "nextStep": "确认安装位置和账号信息"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "light_suggestion",
+            "triggerReason": "已接近可建单条件，建议补全安装位置和账号信息",
+            "currentHandlingAdvice": "建议补问安装位置和账号尾号",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "确认安装位置",
+              "确认账号尾号",
+              "补全后可建标准工单"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "关键信息已补全，可生成标准报障工单草稿。",
+          "currentIntent": "生成标准报障处理",
+          "emotion": "neutral",
+          "currentStage": "收口中",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "设备为监控",
+            "画面无法查看",
+            "今天早上起持续离线",
+            "安装位置客厅",
+            "账号尾号4821"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "监控设备持续离线，画面不可见",
+            "customerDemand": "尽快恢复监控使用",
+            "customerPainPoint": "无法查看画面",
+            "riskPoint": "无",
+            "ticketTitle": "监控离线报障"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "创建标准报障工单",
+            "priority": "medium",
+            "nextStep": "一键执行建单"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "已可生成标准工单草稿",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        },
+        {
+          "conversationSummary": "会话已结束，信息完整，可一键执行标准工单。",
+          "currentIntent": "会话结束",
+          "emotion": "relieved",
+          "currentStage": "已结束",
+          "riskLevel": "low",
+          "riskSignals": [],
+          "keyFacts": [
+            "信息完整",
+            "适合标准建单"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "监控离线报障已完成信息补全",
+            "customerDemand": "提交故障工单",
+            "customerPainPoint": "设备持续离线",
+            "riskPoint": "无",
+            "ticketTitle": "监控设备离线报障"
+          },
+          "decision": {
+            "shouldEscalate": false,
+            "recommendedAction": "一键建工单",
+            "priority": "medium",
+            "nextStep": "创建标准工单"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "会后可一键执行标准报障工单",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        }
+      ],
+      "monitoring": {
+        "currentIntent": "会话结束",
+        "emotion": "relieved",
+        "riskSignals": [],
+        "missingInfo": []
+      },
+      "draft": {
+        "caseDetail": "用户反馈监控设备持续离线，画面无法查看",
+        "customerDemand": "登记故障工单并尽快处理",
+        "customerPainPoint": "监控无法使用",
+        "riskPoint": "无",
+        "suggestedTicketTitle": "监控设备离线报障",
+        "suggestCreateTicket": true
+      },
+      "finalResult": {
+        "summary": "用户反馈监控设备自今日早上开始持续离线，画面无法查看。座席补充确认设备对象、故障现象、发生时间、安装位置和账号尾号后，已具备标准建单条件。",
+        "category": "设备报障",
+        "priority": "medium",
+        "riskLevel": "low"
+      },
+      "resolution": {
+        "recommendedAction": "一键执行",
+        "suggestedPriority": "medium",
+        "nextStepAdvice": "创建标准报障工单",
+        "reason": "信息已补全，动作标准化程度高且风险低",
+        "sopTitle": "设备离线标准建单SOP",
+        "escalate": false
+      },
+      "review": {
+        "score": 88,
+        "confidence": 0.86,
+        "shouldFallback": false,
+        "fallbackReason": "",
+        "currentAlert": "",
+        "depositType": "normal_auto_deposit",
+        "candidateBadcase": false,
+        "lightFeedbackEnabled": true,
+        "depositReason": "补问信息后成功建单，结果正常自动沉淀"
+      }
+    },
+    {
+      "case_id": "case_risk_003",
+      "scenario": "risk_escalation",
+      "header": {
+        "systemName": "客服会话智能处置台",
+        "moduleName": "客服",
+        "analysisStatus": "idle",
+        "playbackMode": "step",
+        "currentTurnIndex": 0,
+        "totalTurns": 5,
+        "canStartAnalysis": true,
+        "primaryActionText": "开始分析"
+      },
+      "meta": {
+        "id": "S-20260322-003",
+        "scenario": "risk_escalation",
+        "channel": "电话",
+        "accessTime": "2026-03-22 14:00:00",
+        "queue": "升级投诉队列",
+        "callDuration": 378,
+        "customerType": "个人用户",
+        "customerTags": [
+          "高风险用户",
+          "重复来电"
+        ],
+        "historyTags": [
+          "有历史投诉倾向",
+          "待处理"
+        ],
+        "currentStatus": "进行中",
+        "phone": "139****8822",
+        "uid": "U2008822",
+        "hasHistory": true,
+        "lastTopic": "处理进度投诉",
+        "lastDisposition": "记录后待处理",
+        "historyInboundCount": 3,
+        "boundDeviceInfo": "—",
+        "deviceFaultCode": ""
+      },
+      "turns": [
+        {
+          "id": "risk_t1",
+          "time": "14:01:00",
+          "speaker": "customer",
+          "text": "我已经打过两次电话了，你们一直说会处理，到现在还是没人解决。",
+          "recognition": {
+            "intent": "表达不满并追责",
+            "emotion": "angry",
+            "risk": "medium"
+          },
+          "highlight": true
+        },
+        {
+          "id": "risk_t2",
+          "time": "14:02:00",
+          "speaker": "agent",
+          "text": "非常抱歉给您带来不便，我先帮您核实当前处理记录。",
+          "recognition": {
+            "intent": "安抚并核查记录",
+            "emotion": "calm",
+            "risk": "medium"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t3",
+          "time": "14:03:00",
+          "speaker": "customer",
+          "text": "我现在很怀疑你们到底有没有在处理，我今天必须要一个明确说法。",
+          "recognition": {
+            "intent": "要求明确答复",
+            "emotion": "angry",
+            "risk": "medium"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t4",
+          "time": "14:04:00",
+          "speaker": "agent",
+          "text": "我理解您的着急心情，我先帮您确认一下当前进度和责任团队。",
+          "recognition": {
+            "intent": "继续安抚并确认进度",
+            "emotion": "calm",
+            "risk": "medium"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t5",
+          "time": "14:05:00",
+          "speaker": "customer",
+          "text": "如果今天再不给我处理，我就直接投诉到监管平台。",
+          "recognition": {
+            "intent": "明确投诉升级",
+            "emotion": "very_angry",
+            "risk": "high"
+          },
+          "highlight": true
+        },
+        {
+          "id": "risk_t6",
+          "time": "14:06:00",
+          "speaker": "agent",
+          "text": "非常抱歉，这边我会立即记录您的升级诉求，并协助转入优先处理流程。",
+          "recognition": {
+            "intent": "转入升级处理口径",
+            "emotion": "calm",
+            "risk": "high"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t7",
+          "time": "14:07:00",
+          "speaker": "customer",
+          "text": "你们不要再敷衍我了。",
+          "recognition": {
+            "intent": "持续强烈不满",
+            "emotion": "very_angry",
+            "risk": "high"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t8",
+          "time": "14:08:00",
+          "speaker": "agent",
+          "text": "我明白，这边会为您升级跟进，并由专人尽快回访。",
+          "recognition": {
+            "intent": "明确升级跟进",
+            "emotion": "calm",
+            "risk": "high"
+          },
+          "highlight": false
+        },
+        {
+          "id": "risk_t9",
+          "time": "14:09:00",
+          "speaker": "customer",
+          "text": "好，那你们今天必须联系我。",
+          "recognition": {
+            "intent": "要求今日联系",
+            "emotion": "angry",
+            "risk": "high"
+          },
+          "highlight": true
+        },
+        {
+          "id": "risk_t10",
+          "time": "14:10:00",
+          "speaker": "agent",
+          "text": "我会按升级流程为您提交并记录明确诉求，由专人跟进回访。",
+          "recognition": {
+            "intent": "结束前确认升级处理",
+            "emotion": "calm",
+            "risk": "high"
+          },
+          "highlight": false
+        }
+      ],
+      "snapshots": [
+        {
+          "conversationSummary": "用户表达多次来电未解决，当前已出现明显不满情绪。",
+          "currentIntent": "追问处理进度并表达不满",
+          "emotion": "angry",
+          "currentStage": "风险识别中",
+          "riskLevel": "medium",
+          "riskSignals": [
+            "识别到重复来电和强烈不满，存在升级风险"
+          ],
+          "keyFacts": [
+            "用户已多次来电",
+            "问题尚未解决"
+          ],
+          "missingInfo": [
+            "当前处理记录细节"
+          ],
+          "draft": {
+            "caseDetail": "用户多次来电未解决，情绪明显不满",
+            "customerDemand": "要求尽快明确处理结果",
+            "customerPainPoint": "反复来电仍未解决",
+            "riskPoint": "重复来电升级风险",
+            "ticketTitle": "重复来电未解决升级处理"
+          },
+          "decision": {
+            "shouldEscalate": true,
+            "recommendedAction": "核查记录并准备升级处理",
+            "priority": "high",
+            "nextStep": "确认历史处理状态"
+          },
+          "review": {
+            "currentAlert": "检测到重复来电升级信号"
+          },
+          "suggestion": {
+            "routeType": "strong_alert",
+            "triggerReason": "识别到重复来电和强烈不满，存在升级风险",
+            "currentHandlingAdvice": "当前需优先安抚并核查历史处理记录",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "避免直接承诺结果时点",
+              "先确认历史处理记录",
+              "准备切换升级处理口径"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "用户要求今天给出明确说法，风险继续上升。",
+          "currentIntent": "要求明确时限与处理结果",
+          "emotion": "angry",
+          "currentStage": "升级处理中",
+          "riskLevel": "medium",
+          "riskSignals": [
+            "用户信任下降，建议切换升级沟通口径"
+          ],
+          "keyFacts": [
+            "用户要求今日给出说法",
+            "对处理过程缺乏信任"
+          ],
+          "missingInfo": [
+            "当前责任团队和处理节点"
+          ],
+          "draft": {
+            "caseDetail": "用户要求今日得到明确答复",
+            "customerDemand": "希望立即明确处理进展",
+            "customerPainPoint": "对系统处理无信任",
+            "riskPoint": "时效承诺风险",
+            "ticketTitle": "投诉升级处理中"
+          },
+          "decision": {
+            "shouldEscalate": true,
+            "recommendedAction": "转升级处理并说明流程",
+            "priority": "high",
+            "nextStep": "确认升级记录"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "strong_alert",
+            "triggerReason": "用户信任下降，建议切换升级沟通口径",
+            "currentHandlingAdvice": "当前需稳住情绪并避免过度承诺",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "先确认责任团队",
+              "避免承诺最终处理结果",
+              "明确会进入升级流程"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "用户明确提到监管投诉，进入高风险节点。",
+          "currentIntent": "投诉升级",
+          "emotion": "very_angry",
+          "currentStage": "高风险处理中",
+          "riskLevel": "high",
+          "riskSignals": [
+            "检测到监管投诉信号，需人工当下处理"
+          ],
+          "keyFacts": [
+            "用户提到监管平台投诉",
+            "当前节点不适合自动执行高影响动作"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "用户明确提出监管投诉倾向",
+            "customerDemand": "立即处理并给出明确说法",
+            "customerPainPoint": "多次来电未解决",
+            "riskPoint": "监管投诉高风险",
+            "ticketTitle": "监管投诉风险升级"
+          },
+          "decision": {
+            "shouldEscalate": true,
+            "recommendedAction": "人工接管升级处理",
+            "priority": "high",
+            "nextStep": "进入优先升级流程"
+          },
+          "review": {
+            "currentAlert": "高风险：监管投诉升级"
+          },
+          "suggestion": {
+            "routeType": "strong_alert",
+            "triggerReason": "检测到监管投诉信号，需人工当下处理",
+            "currentHandlingAdvice": "当前需人工判断并进入优先升级流程",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "明确记录升级诉求",
+              "避免承诺不可控结果",
+              "转入优先处理流程",
+              "后续必须人工确认"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "已进入升级处理口径，但用户情绪仍高。",
+          "currentIntent": "要求今日联系并升级跟进",
+          "emotion": "very_angry",
+          "currentStage": "高风险处理中",
+          "riskLevel": "high",
+          "riskSignals": [
+            "高风险场景持续，当前需人工跟进"
+          ],
+          "keyFacts": [
+            "已明确记录升级诉求",
+            "用户要求今日必须联系"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "用户要求今日内必须被联系",
+            "customerDemand": "获得明确回访与处理",
+            "customerPainPoint": "担心再次被拖延",
+            "riskPoint": "投诉升级持续",
+            "ticketTitle": "升级回访跟进"
+          },
+          "decision": {
+            "shouldEscalate": true,
+            "recommendedAction": "人工接管并安排专人回访",
+            "priority": "high",
+            "nextStep": "提交升级工单"
+          },
+          "review": {
+            "currentAlert": ""
+          },
+          "suggestion": {
+            "routeType": "strong_alert",
+            "triggerReason": "高风险场景持续，当前需人工跟进",
+            "currentHandlingAdvice": "当前需人工持续接管",
+            "requiresImmediateHandling": true,
+            "suggestionContent": [
+              "维持升级处理口径",
+              "记录明确诉求",
+              "准备人工回访安排"
+            ]
+          }
+        },
+        {
+          "conversationSummary": "会话已结束，需进入人工接管与候选 badcase 沉淀。",
+          "currentIntent": "会话结束",
+          "emotion": "angry",
+          "currentStage": "已结束",
+          "riskLevel": "high",
+          "riskSignals": [],
+          "keyFacts": [
+            "多次来电未解决",
+            "明确投诉升级",
+            "需人工接管"
+          ],
+          "missingInfo": [],
+          "draft": {
+            "caseDetail": "高风险投诉升级场景已结束",
+            "customerDemand": "要求今日获得处理反馈",
+            "customerPainPoint": "反复来电未解决",
+            "riskPoint": "监管投诉风险",
+            "ticketTitle": "高风险投诉升级处理"
+          },
+          "decision": {
+            "shouldEscalate": true,
+            "recommendedAction": "人工接管",
+            "priority": "high",
+            "nextStep": "提交升级处理并候选 badcase 标记"
+          },
+          "review": {
+            "currentAlert": "会后需人工接管"
+          },
+          "suggestion": {
+            "routeType": "silent_update",
+            "triggerReason": null,
+            "currentHandlingAdvice": "会后进入人工接管，不自动执行高风险动作",
+            "requiresImmediateHandling": false,
+            "suggestionContent": []
+          }
+        }
+      ],
+      "monitoring": {
+        "currentIntent": "会话结束",
+        "emotion": "angry",
+        "riskSignals": [
+          "重复来电",
+          "投诉升级",
+          "监管投诉倾向"
+        ],
+        "missingInfo": []
+      },
+      "draft": {
+        "caseDetail": "用户多次来电未解决，明确表达监管投诉倾向",
+        "customerDemand": "要求今日给出明确处理反馈",
+        "customerPainPoint": "多次来电无结果，对处理失去信任",
+        "riskPoint": "高风险投诉升级",
+        "suggestedTicketTitle": "投诉升级人工接管",
+        "suggestCreateTicket": true
+      },
+      "finalResult": {
+        "summary": "用户因问题多次来电未解决而表达强烈不满，并明确提出若今日仍无处理结果将投诉至监管平台。座席已安抚并说明将转入升级处理流程。",
+        "category": "投诉升级",
+        "priority": "high",
+        "riskLevel": "high"
+      },
+      "resolution": {
+        "recommendedAction": "人工接管",
+        "suggestedPriority": "high",
+        "nextStepAdvice": "提交升级处理并安排专人回访",
+        "reason": "高风险、高影响，不应自动执行",
+        "sopTitle": "投诉升级人工接管SOP",
+        "escalate": true
+      },
+      "review": {
+        "score": 75,
+        "confidence": 0.62,
+        "shouldFallback": true,
+        "fallbackReason": "高风险场景需人工接管",
+        "currentAlert": "高风险：投诉升级",
+        "depositType": "candidate_badcase_auto_mark",
+        "candidateBadcase": true,
+        "lightFeedbackEnabled": true,
+        "depositReason": "高风险升级场景，自动进入候选 badcase"
+      }
+    }
+  ]
+}
