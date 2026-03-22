@@ -65,6 +65,7 @@ export function ConversationGlobalStatusBar() {
   const userTags = basicInfo.userTags.join(" / ");
   const historyRiskTags = basicInfo.historyRiskTags.join(" / ");
   const history = basicInfo.historyConsultation;
+  const edgeCloud = basicInfo.edgeCloud;
 
   return (
     <section className="mx-auto mt-4 w-full max-w-[1720px] px-5">
@@ -121,9 +122,11 @@ export function ConversationGlobalStatusBar() {
             <div>
               <p className="text-[11px] font-normal text-slate-500">设备信息 / 故障报码</p>
               <FieldValue
-                value={`${basicInfo.deviceInfo || "设备信息待同步"} / ${
-                  basicInfo.deviceFaultCode || "待回传"
-                }`}
+                value={
+                  edgeCloud.enabled
+                    ? "会话相关上下文见下方端云协同信息"
+                    : "设备信息待同步 / 故障码待回传"
+                }
                 className="text-slate-700"
               />
             </div>
@@ -165,6 +168,34 @@ export function ConversationGlobalStatusBar() {
             </div>
           </div>
         </div>
+
+        {edgeCloud.enabled ? (
+          <div className="mt-3 rounded-2xl border border-slate-200/70 bg-slate-50/70 px-3 py-2.5">
+            <p className="mb-2 text-xs font-semibold text-slate-600">端云协同信息</p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              <div>
+                <p className="text-[11px] font-normal text-slate-500">绑定设备</p>
+                <FieldValue value={edgeCloud.boundDevice || "-"} />
+              </div>
+              <div>
+                <p className="text-[11px] font-normal text-slate-500">当前设备状态</p>
+                <FieldValue value={edgeCloud.deviceStatus || "-"} />
+              </div>
+              <div>
+                <p className="text-[11px] font-normal text-slate-500">最近故障码</p>
+                <FieldValue value={edgeCloud.faultCode || "-"} />
+              </div>
+              <div>
+                <p className="text-[11px] font-normal text-slate-500">最近关键事件</p>
+                <FieldValue value={edgeCloud.latestEvent || "-"} forceHoverPanel />
+              </div>
+              <div>
+                <p className="text-[11px] font-normal text-slate-500">云侧理解摘要</p>
+                <FieldValue value={edgeCloud.cloudSummary || "-"} forceHoverPanel />
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

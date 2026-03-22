@@ -1,4 +1,4 @@
-import source from "@/data/mock_scenarios_codex_v3_latest.json";
+import source from "@/data/focused_mock_cases_v4_two_cases.json";
 import type {
   ConversationCase,
   ConversationMeta,
@@ -10,120 +10,78 @@ import type {
   TurnSnapshot,
 } from "@/types/conversation";
 
-interface RawTurn {
-  id: string;
-  time: string;
-  speaker: string;
-  text: string;
-  recognition: {
-    intent: string;
-    emotion: string;
-    risk: string;
+interface FocusedRound {
+  roundIndex: number;
+  timestamp: string;
+  conversationRound: {
+    customer: string;
+    agent: string;
   };
-  highlight?: boolean;
+  recognitionResult: {
+    currentIntent: string;
+    currentEmotion: string;
+    estimatedMissingInfo?: string[];
+    suggestionLevel: "无额外建议" | "存在轻度建议" | "强烈建议关注";
+    suggestionContent?: string[];
+    reasoningBasis?: string[];
+  };
+  progressiveSummary: string;
+  postCallClosurePreview: {
+    summary: string;
+    archiveCategory: string;
+    suggestedTitle: string;
+    riskPointNote: string;
+    dispositionDraft: string;
+    nextDispositionSuggestion: {
+      recommendedAction: string;
+      suggestedPriority: string;
+      nextStepAdvice: string;
+      reason: string;
+      sopTitle: string;
+    };
+  };
 }
 
-interface RawSnapshot {
-  conversationSummary?: string;
-  currentIntent: string;
-  emotion: string;
-  currentStage?: string;
-  riskLevel: string;
-  riskSignals: string[];
-  keyFacts?: string[];
-  missingInfo: string[];
-  draft: {
-    caseDetail: string;
-    customerDemand: string;
-    customerPainPoint: string;
-    riskPoint: string;
-    ticketTitle: string;
-  };
-  decision: {
-    shouldEscalate: boolean;
-    recommendedAction: string;
-    priority: string;
-    nextStep: string;
-  };
-  review: {
-    currentAlert: string;
-  };
-  suggestion?: TurnSnapshot["suggestion"];
-}
-
-interface RawCase {
+interface FocusedCase {
   case_id: string;
   scenario: string;
+  scenarioName?: string;
   header?: {
     systemName?: string;
     moduleName?: string;
+    channel?: string;
     totalTurns?: number;
   };
-  meta: {
-    id: string;
-    scenario: string;
-    channel: string;
-    accessTime: string;
-    queue: string;
-    callDuration: number | string;
-    customerType?: string;
-    customerTags: string[];
-    historyTags: string[];
-    currentStatus: string;
-    phone?: string;
-    uid?: string;
+  userBasicInfo: {
+    phoneOrUid?: string;
+    sessionId: string;
+    channel?: string;
+    userTags?: string[];
+    accessTime?: string;
+    queueName?: string;
+    callDuration?: number | string;
     hasHistory?: boolean;
     lastTopic?: string;
     lastDisposition?: string;
     historyInboundCount?: number;
+  };
+  edgeCloudContext?: {
     boundDeviceInfo?: string;
+    deviceStatus?: string;
     deviceFaultCode?: string;
+    latestEvent?: string;
+    cloudUnderstanding?: string;
   };
-  turns: RawTurn[];
-  snapshots: RawSnapshot[];
-  monitoring: {
-    currentIntent: string;
-    emotion: string;
-    riskSignals: string[];
-    missingInfo: string[];
-  };
-  draft: {
-    caseDetail: string;
-    customerDemand: string;
-    customerPainPoint: string;
-    riskPoint: string;
-    suggestedTicketTitle: string;
-    suggestCreateTicket: boolean;
-  };
-  finalResult: {
-    summary: string;
-    category: string;
-    priority: string;
-    riskLevel: string;
-  };
-  resolution: {
-    recommendedAction: string;
-    suggestedPriority: string;
-    nextStepAdvice: string;
-    reason: string;
-    sopTitle: string;
-    escalate: boolean;
-  };
-  review: {
-    score: number;
-    confidence: number | string;
-    shouldFallback: boolean;
-    fallbackReason: string;
-    currentAlert?: string;
-    depositType?: "normal_auto_deposit" | "candidate_badcase_auto_mark";
-    candidateBadcase?: boolean;
-    lightFeedbackEnabled?: boolean;
-    depositReason?: string;
-  };
+  rounds: FocusedRound[];
 }
 
-interface RawDataset {
-  cases: RawCase[];
+interface FocusedDataset {
+  cases: FocusedCase[];
+}
+
+export interface ScenarioOption {
+  value: ScenarioType;
+  label: string;
 }
 
 export const PAGE_STAGE_FLOW: PageStage[] = [
@@ -157,40 +115,46 @@ export const AGENT_CURRENT_STATUS_LABELS: Record<PageStage, string> = {
 };
 
 export const AGENT_FLOW_ITEMS = [
-  { key: "understanding", zhLabel: "会话理解", enLabel: "Understanding Agent", gate: "monitoring" as PageStage },
-  { key: "drafting", zhLabel: "草稿生成", enLabel: "Drafting Agent", gate: "drafting" as PageStage },
-  { key: "resolution", zhLabel: "处置建议", enLabel: "Resolution Agent", gate: "resolving" as PageStage },
-  { key: "review", zhLabel: "审查确认", enLabel: "Review Agent", gate: "reviewing" as PageStage },
+  {
+    key: "understanding",
+    zhLabel: "会话理解",
+    enLabel: "Understanding Agent",
+    gate: "monitoring" as PageStage,
+  },
+  {
+    key: "drafting",
+    zhLabel: "草稿生成",
+    enLabel: "Drafting Agent",
+    gate: "drafting" as PageStage,
+  },
+  {
+    key: "resolution",
+    zhLabel: "处置建议",
+    enLabel: "Resolution Agent",
+    gate: "resolving" as PageStage,
+  },
+  {
+    key: "review",
+    zhLabel: "审查确认",
+    enLabel: "Review Agent",
+    gate: "reviewing" as PageStage,
+  },
 ];
+
+const DATASET = source as FocusedDataset;
 
 const EMOTION_MAP: Record<string, EmotionLevel> = {
   平稳: "平稳",
-  neutral: "平稳",
-  calm: "平稳",
-  relieved: "平稳",
+  稳定: "平稳",
   不满: "不满",
-  slightly_anxious: "不满",
-  anxious: "不满",
+  明显不满: "不满",
   激动: "激动",
-  angry: "激动",
+  愤怒: "高风险",
   高风险: "高风险",
-  very_angry: "高风险",
-};
-
-const RISK_MAP: Record<string, RiskLevel> = {
-  低: "低",
-  low: "低",
-  中: "中",
-  medium: "中",
-  高: "高",
-  high: "高",
 };
 
 const normalizeEmotion = (value: string): EmotionLevel =>
   EMOTION_MAP[value] ?? "平稳";
-
-const normalizeRiskLevel = (value: string): RiskLevel =>
-  RISK_MAP[value] ?? "低";
 
 const normalizePriority = (value: string): string => {
   if (value === "high" || value === "高") return "高";
@@ -199,12 +163,7 @@ const normalizePriority = (value: string): string => {
   return value || "中";
 };
 
-const normalizeSpeaker = (speaker: string): "客户" | "客服" => {
-  if (speaker === "customer" || speaker === "客户") return "客户";
-  return "客服";
-};
-
-const formatCallDuration = (value: number | string): string => {
+const formatCallDuration = (value: number | string | undefined): string => {
   if (typeof value === "number" && Number.isFinite(value)) {
     const safe = Math.max(0, Math.floor(value));
     const minutes = Math.floor(safe / 60);
@@ -215,152 +174,359 @@ const formatCallDuration = (value: number | string): string => {
   return "00:00";
 };
 
-const normalizeConfidenceLabel = (value: number | string): "高" | "中" | "低" => {
-  if (typeof value === "number") {
-    if (value >= 0.85) return "高";
-    if (value >= 0.7) return "中";
-    return "低";
+const inferRiskLevel = (round: FocusedRound): RiskLevel => {
+  const emotion = normalizeEmotion(round.recognitionResult.currentEmotion);
+  const action = round.postCallClosurePreview.nextDispositionSuggestion.recommendedAction;
+  const riskNote = round.postCallClosurePreview.riskPointNote || "";
+
+  if (
+    emotion === "高风险" ||
+    emotion === "激动" ||
+    round.recognitionResult.suggestionLevel === "强烈建议关注" ||
+    action.includes("升级") ||
+    /高风险|投诉|监管|升级/.test(riskNote)
+  ) {
+    return "高";
   }
-  if (value === "高" || value === "high") return "高";
-  if (value === "低" || value === "low") return "低";
-  return "中";
+
+  if (emotion === "不满") return "中";
+  return "低";
 };
 
-const normalizeConversationMeta = (rawMeta: RawCase["meta"]): ConversationMeta => ({
-  id: rawMeta.id,
-  scenario: rawMeta.scenario,
-  channel: rawMeta.channel,
-  accessTime: rawMeta.accessTime,
-  queue: rawMeta.queue,
-  callDuration: formatCallDuration(rawMeta.callDuration),
-  customerType: rawMeta.customerType,
-  customerTags: rawMeta.customerTags ?? [],
-  historyTags: rawMeta.historyTags ?? [],
-  currentStatus: rawMeta.currentStatus,
-  phone: rawMeta.phone,
-  uid: rawMeta.uid,
-  hasHistory: rawMeta.hasHistory,
-  lastTopic: rawMeta.lastTopic,
-  lastDisposition: rawMeta.lastDisposition,
-  historyInboundCount: rawMeta.historyInboundCount,
-  boundDeviceInfo: rawMeta.boundDeviceInfo,
-  deviceFaultCode: rawMeta.deviceFaultCode,
-});
+const dedupe = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
 
-const normalizeTurns = (turns: RawTurn[], snapshotCount: number): ConversationTurn[] => {
-  const maxCount = Math.max(1, snapshotCount);
-  return turns.slice(0, maxCount).map((turn) => ({
-    id: turn.id,
-    time: turn.time,
-    speaker: normalizeSpeaker(turn.speaker),
-    text: turn.text,
+const buildRiskSignals = (round: FocusedRound, riskLevel: RiskLevel): string[] => {
+  const reasonSignals = (round.recognitionResult.reasoningBasis ?? []).filter((item) =>
+    /投诉|监管|升级|争议|风险/.test(item),
+  );
+
+  const noteSignals = /无明显高风险|低风险/.test(round.postCallClosurePreview.riskPointNote)
+    ? []
+    : [round.postCallClosurePreview.riskPointNote];
+
+  const base = dedupe([...reasonSignals, ...noteSignals]).slice(0, 3);
+
+  if (base.length > 0) return base;
+  if (riskLevel === "高") return ["风险升级信号"];
+  if (riskLevel === "中") return ["情绪波动"];
+  return ["暂无明显风险信号"];
+};
+
+const buildTurnSuggestion = (
+  round: FocusedRound,
+): TurnSnapshot["suggestion"] => {
+  const level = round.recognitionResult.suggestionLevel;
+
+  if (level === "强烈建议关注") {
+    return {
+      routeType: "strong_alert",
+      triggerReason: round.recognitionResult.reasoningBasis?.[0] ?? null,
+      currentHandlingAdvice:
+        round.recognitionResult.suggestionContent?.[0] || "检测到风险升级，需座席当下处理。",
+      requiresImmediateHandling: true,
+      suggestionContent: round.recognitionResult.suggestionContent ?? [],
+    };
+  }
+
+  if (level === "存在轻度建议") {
+    return {
+      routeType: "light_suggestion",
+      triggerReason: round.recognitionResult.reasoningBasis?.[0] ?? null,
+      currentHandlingAdvice:
+        round.recognitionResult.suggestionContent?.[0] || "建议补问关键信息后继续处理。",
+      requiresImmediateHandling: false,
+      suggestionContent: round.recognitionResult.suggestionContent ?? [],
+    };
+  }
+
+  return {
+    routeType: "silent_update",
+    triggerReason: null,
+    currentHandlingAdvice: "当前无需额外建议。",
+    requiresImmediateHandling: false,
+    suggestionContent: round.recognitionResult.suggestionContent ?? [],
+  };
+};
+
+const buildReviewAlert = (round: FocusedRound) => {
+  if (round.recognitionResult.suggestionLevel === "强烈建议关注") {
+    return "检测到风险升级信号，建议优先人工关注。";
+  }
+  if (round.recognitionResult.suggestionLevel === "存在轻度建议") {
+    return "建议补全关键信息后继续推进。";
+  }
+  return "暂无额外审查提醒。";
+};
+
+const buildEdgeCloudNarrative = (
+  edgeCloudContext: FocusedCase["edgeCloudContext"] | undefined,
+) => {
+  if (!edgeCloudContext) return "";
+  const snippets = [
+    edgeCloudContext.boundDeviceInfo
+      ? `绑定设备为${edgeCloudContext.boundDeviceInfo}`
+      : "",
+    edgeCloudContext.deviceStatus
+      ? `当前设备状态为${edgeCloudContext.deviceStatus}`
+      : "",
+    edgeCloudContext.deviceFaultCode
+      ? `最近故障码为${edgeCloudContext.deviceFaultCode}`
+      : "",
+    edgeCloudContext.latestEvent
+      ? `最近关键事件：${edgeCloudContext.latestEvent}`
+      : "",
+    edgeCloudContext.cloudUnderstanding
+      ? `云侧理解：${edgeCloudContext.cloudUnderstanding}`
+      : "",
+  ].filter(Boolean);
+  return snippets.join("；");
+};
+
+const normalizeConversationMeta = (item: FocusedCase): ConversationMeta => {
+  const info = item.userBasicInfo;
+  return {
+    id: info.sessionId,
+    scenario: item.scenario,
+    channel: info.channel || item.header?.channel || "电话",
+    accessTime: info.accessTime || "",
+    queue: info.queueName || "",
+    callDuration: formatCallDuration(info.callDuration),
+    customerType: undefined,
+    customerTags: info.userTags ?? [],
+    historyTags: [],
+    currentStatus: PAGE_STAGE_LABELS.idle,
+    phone: info.phoneOrUid,
+    uid: undefined,
+    hasHistory: info.hasHistory,
+    lastTopic: info.lastTopic,
+    lastDisposition: info.lastDisposition,
+    historyInboundCount: info.historyInboundCount,
+    boundDeviceInfo: item.edgeCloudContext?.boundDeviceInfo,
+    currentDeviceStatus: item.edgeCloudContext?.deviceStatus,
+    deviceFaultCode: item.edgeCloudContext?.deviceFaultCode,
+    latestKeyEvent: item.edgeCloudContext?.latestEvent,
+    cloudUnderstandingSummary: item.edgeCloudContext?.cloudUnderstanding,
+  };
+};
+
+const normalizeTurns = (rounds: FocusedRound[]): ConversationTurn[] =>
+  rounds.map((round) => ({
+    id: `r${round.roundIndex}`,
+    time: round.timestamp,
+    speaker: "客户",
+    text: round.conversationRound.customer,
+    agentText: round.conversationRound.agent,
     recognition: {
-      intent: turn.recognition.intent,
-      emotion: normalizeEmotion(turn.recognition.emotion),
-      risk: normalizeRiskLevel(turn.recognition.risk),
+      intent: round.recognitionResult.currentIntent,
+      emotion: normalizeEmotion(round.recognitionResult.currentEmotion),
+      risk: inferRiskLevel(round),
     },
-    highlight: turn.highlight,
+    highlight:
+      round.recognitionResult.suggestionLevel === "强烈建议关注" ||
+      /投诉|监管|升级/.test(round.conversationRound.customer),
   }));
+
+const normalizeSnapshots = (
+  rounds: FocusedRound[],
+  edgeCloudContext: FocusedCase["edgeCloudContext"] | undefined,
+): TurnSnapshot[] =>
+  rounds.map((round) => {
+    const riskLevel = inferRiskLevel(round);
+    const nextSuggestion = round.postCallClosurePreview.nextDispositionSuggestion;
+    const edgeCloudNarrative = buildEdgeCloudNarrative(edgeCloudContext);
+    const edgeRiskHint =
+      edgeCloudContext?.deviceStatus && /离线|异常|故障/.test(edgeCloudContext.deviceStatus)
+        ? `设备状态提示：${edgeCloudContext.deviceStatus}`
+        : "";
+
+    return {
+      conversationSummary: round.progressiveSummary,
+      currentIntent: round.recognitionResult.currentIntent,
+      emotion: normalizeEmotion(round.recognitionResult.currentEmotion),
+      currentStage: round.recognitionResult.suggestionLevel,
+      riskLevel,
+      riskSignals: buildRiskSignals(round, riskLevel),
+      keyFacts: round.recognitionResult.reasoningBasis ?? [],
+      missingInfo: round.recognitionResult.estimatedMissingInfo ?? [],
+      draft: {
+        caseDetail: [round.postCallClosurePreview.dispositionDraft, edgeCloudNarrative]
+          .filter(Boolean)
+          .join("；"),
+        customerDemand: round.recognitionResult.currentIntent,
+        customerPainPoint:
+          round.recognitionResult.reasoningBasis?.slice(0, 2).join("；") ||
+          round.recognitionResult.currentIntent,
+        riskPoint: [round.postCallClosurePreview.riskPointNote, edgeRiskHint]
+          .filter(Boolean)
+          .join("；"),
+        ticketTitle: round.postCallClosurePreview.suggestedTitle,
+      },
+      decision: {
+        shouldEscalate:
+          nextSuggestion.recommendedAction === "升级处理" ||
+          normalizePriority(nextSuggestion.suggestedPriority) === "高",
+        recommendedAction: nextSuggestion.recommendedAction,
+        priority: normalizePriority(nextSuggestion.suggestedPriority),
+        nextStep: nextSuggestion.nextStepAdvice,
+      },
+      review: {
+        currentAlert: buildReviewAlert(round),
+      },
+      suggestion: buildTurnSuggestion(round),
+    };
+  });
+
+const normalizeConfidenceLabel = (
+  riskLevel: RiskLevel,
+): "高" | "中" | "低" => {
+  if (riskLevel === "高") return "中";
+  if (riskLevel === "中") return "中";
+  return "高";
 };
 
-const normalizeSnapshots = (snapshots: RawSnapshot[]): TurnSnapshot[] =>
-  snapshots.map((snapshot) => ({
-    conversationSummary: snapshot.conversationSummary,
-    currentIntent: snapshot.currentIntent,
-    emotion: normalizeEmotion(snapshot.emotion),
-    currentStage: snapshot.currentStage,
-    riskLevel: normalizeRiskLevel(snapshot.riskLevel),
-    riskSignals: snapshot.riskSignals ?? [],
-    keyFacts: snapshot.keyFacts ?? [],
-    missingInfo: snapshot.missingInfo ?? [],
-    draft: {
-      caseDetail: snapshot.draft.caseDetail,
-      customerDemand: snapshot.draft.customerDemand,
-      customerPainPoint: snapshot.draft.customerPainPoint,
-      riskPoint: snapshot.draft.riskPoint,
-      ticketTitle: snapshot.draft.ticketTitle,
-    },
-    decision: {
-      shouldEscalate: snapshot.decision.shouldEscalate,
-      recommendedAction: snapshot.decision.recommendedAction,
-      priority: normalizePriority(snapshot.decision.priority),
-      nextStep: snapshot.decision.nextStep,
-    },
-    review: {
-      currentAlert: snapshot.review.currentAlert,
-    },
-    suggestion: snapshot.suggestion,
-  }));
+const normalizeReviewState = (
+  finalRound: FocusedRound,
+  finalRiskLevel: RiskLevel,
+) => {
+  const isHighRisk =
+    finalRiskLevel === "高" ||
+    finalRound.postCallClosurePreview.nextDispositionSuggestion.recommendedAction ===
+      "升级处理";
 
-const DATASET = source as RawDataset;
+  return {
+    score: isHighRisk ? 74 : 90,
+    confidence: normalizeConfidenceLabel(finalRiskLevel),
+    confidenceScore: isHighRisk ? 0.72 : 0.9,
+    shouldFallback: isHighRisk,
+    fallbackReason: isHighRisk
+      ? "当前场景存在高风险信号，建议人工复核后再提交。"
+      : "当前场景可按标准流程处理。",
+    currentAlert: buildReviewAlert(finalRound),
+    depositType: isHighRisk
+      ? ("candidate_badcase_auto_mark" as const)
+      : ("normal_auto_deposit" as const),
+    candidateBadcase: isHighRisk,
+    lightFeedbackEnabled: true,
+    depositReason: isHighRisk
+      ? "高风险场景自动标记为候选问题样本。"
+      : "标准场景自动沉淀。",
+  };
+};
 
-export const MOCK_CASES: ConversationCase[] = (DATASET.cases ?? []).map((item) => {
-  const normalizedSnapshots = normalizeSnapshots(item.snapshots ?? []);
+const normalizeCase = (item: FocusedCase): ConversationCase => {
+  const rounds = item.rounds ?? [];
+  const snapshots = normalizeSnapshots(rounds, item.edgeCloudContext);
+  const turns = normalizeTurns(rounds);
+
+  const finalRound = rounds[rounds.length - 1] ?? rounds[0];
+  const finalSuggestion =
+    finalRound?.postCallClosurePreview.nextDispositionSuggestion;
+  const finalRiskLevel = finalRound ? inferRiskLevel(finalRound) : "低";
+
+  const fallbackMonitoring: ConversationCase["monitoring"] = {
+    currentIntent: "待识别",
+    emotion: "平稳",
+    riskSignals: ["暂无明显风险信号"],
+    missingInfo: [],
+  };
+
+  const firstSnapshot = snapshots[0];
+  const finalSnapshot = snapshots[snapshots.length - 1] ?? firstSnapshot;
 
   return {
     case_id: item.case_id,
     scenario: item.scenario,
-    meta: normalizeConversationMeta(item.meta),
-    turns: normalizeTurns(item.turns ?? [], normalizedSnapshots.length),
-    snapshots: normalizedSnapshots,
-    monitoring: {
-      currentIntent: item.monitoring.currentIntent,
-      emotion: normalizeEmotion(item.monitoring.emotion),
-      riskSignals: item.monitoring.riskSignals ?? [],
-      missingInfo: item.monitoring.missingInfo ?? [],
-    },
+    meta: normalizeConversationMeta(item),
+    turns,
+    snapshots,
+    monitoring: firstSnapshot
+      ? {
+          currentIntent: firstSnapshot.currentIntent,
+          emotion: firstSnapshot.emotion,
+          riskSignals: firstSnapshot.riskSignals,
+          missingInfo: firstSnapshot.missingInfo,
+        }
+      : fallbackMonitoring,
     draft: {
-      caseDetail: item.draft.caseDetail,
-      customerDemand: item.draft.customerDemand,
-      customerPainPoint: item.draft.customerPainPoint,
-      riskPoint: item.draft.riskPoint,
-      suggestedTicketTitle: item.draft.suggestedTicketTitle,
-      suggestCreateTicket: item.draft.suggestCreateTicket,
+      caseDetail:
+        finalSnapshot?.draft.caseDetail ||
+        finalRound?.postCallClosurePreview.dispositionDraft ||
+        "待生成",
+      customerDemand:
+        finalSnapshot?.draft.customerDemand ||
+        finalRound?.recognitionResult.currentIntent ||
+        "待识别",
+      customerPainPoint:
+        finalSnapshot?.draft.customerPainPoint ||
+        finalRound?.recognitionResult.reasoningBasis?.[0] ||
+        "待补充",
+      riskPoint:
+        finalSnapshot?.draft.riskPoint ||
+        finalRound?.postCallClosurePreview.riskPointNote ||
+        "暂无",
+      suggestedTicketTitle:
+        finalSnapshot?.draft.ticketTitle ||
+        finalRound?.postCallClosurePreview.suggestedTitle ||
+        "待生成工单标题",
+      suggestCreateTicket:
+        finalSuggestion?.recommendedAction !== "自动归档" &&
+        finalSuggestion?.recommendedAction !== "无需跟进",
     },
     finalResult: {
-      summary: item.finalResult.summary,
-      category: item.finalResult.category,
-      priority: normalizePriority(item.finalResult.priority),
-      riskLevel: normalizeRiskLevel(item.finalResult.riskLevel),
+      summary:
+        finalRound?.postCallClosurePreview.summary ||
+        finalSnapshot?.conversationSummary ||
+        "待生成",
+      category: finalRound?.postCallClosurePreview.archiveCategory || "待归档",
+      priority: normalizePriority(finalSuggestion?.suggestedPriority || "中"),
+      riskLevel: finalRiskLevel,
     },
     resolution: {
-      recommendedAction: item.resolution.recommendedAction,
-      suggestedPriority: normalizePriority(item.resolution.suggestedPriority),
-      nextStepAdvice: item.resolution.nextStepAdvice,
-      reason: item.resolution.reason,
-      sopTitle: item.resolution.sopTitle,
-      escalate: item.resolution.escalate,
+      recommendedAction: finalSuggestion?.recommendedAction || "其他",
+      suggestedPriority: normalizePriority(finalSuggestion?.suggestedPriority || "中"),
+      nextStepAdvice: finalSuggestion?.nextStepAdvice || "建议继续跟进当前会话。",
+      reason: finalSuggestion?.reason || "系统根据当前会话信息生成处置建议。",
+      sopTitle: finalSuggestion?.sopTitle || "通用处置SOP",
+      escalate:
+        finalSuggestion?.recommendedAction === "升级处理" || finalRiskLevel === "高",
     },
-    review: {
-      score: item.review.score,
-      confidence: normalizeConfidenceLabel(item.review.confidence),
-      confidenceScore:
-        typeof item.review.confidence === "number" ? item.review.confidence : undefined,
-      shouldFallback: item.review.shouldFallback,
-      fallbackReason: item.review.fallbackReason,
-      currentAlert: item.review.currentAlert,
-      depositType: item.review.depositType,
-      candidateBadcase: item.review.candidateBadcase,
-      lightFeedbackEnabled: item.review.lightFeedbackEnabled,
-      depositReason: item.review.depositReason,
-    },
+    review: finalRound
+      ? normalizeReviewState(finalRound, finalRiskLevel)
+      : {
+          score: 80,
+          confidence: "中",
+          confidenceScore: 0.8,
+          shouldFallback: false,
+          fallbackReason: "暂无",
+          currentAlert: "暂无额外审查提醒。",
+          depositType: "normal_auto_deposit",
+          candidateBadcase: false,
+          lightFeedbackEnabled: true,
+          depositReason: "标准场景自动沉淀。",
+        },
   };
-});
+};
+
+export const MOCK_CASES: ConversationCase[] = (DATASET.cases ?? []).map(normalizeCase);
 
 const CASE_MAP = new Map(MOCK_CASES.map((item) => [item.case_id, item]));
+const RAW_CASE_MAP = new Map((DATASET.cases ?? []).map((item) => [item.case_id, item]));
 
-const LEGACY_SCENARIO_ALIAS: Record<string, string[]> = {
-  service: ["standard_service_query", "missing_info_fill_ticket"],
-  outbound: ["risk_escalation"],
-};
+export const SCENARIO_LABELS: Record<string, string> = Object.fromEntries(
+  (DATASET.cases ?? []).map((item) => [item.scenario, item.scenarioName || item.scenario]),
+);
 
-export const SCENARIO_LABELS: Record<string, string> = {
-  standard_service_query: "标准咨询",
-  missing_info_fill_ticket: "信息补问",
-  risk_escalation: "风险升级",
-  service: "客服",
-  outbound: "外呼",
-};
+export const SCENARIO_OPTIONS: ScenarioOption[] = Array.from(
+  new Map(
+    (DATASET.cases ?? []).map((item) => [
+      item.scenario,
+      {
+        value: item.scenario,
+        label: item.scenarioName || item.scenario,
+      },
+    ]),
+  ).values(),
+);
 
 const UNIQUE_CATEGORIES = Array.from(
   new Set(MOCK_CASES.map((item) => item.finalResult.category).filter(Boolean)),
@@ -369,14 +535,12 @@ const UNIQUE_CATEGORIES = Array.from(
 export const CATEGORY_OPTIONS = ["无需跟进", ...UNIQUE_CATEGORIES];
 export const PRIORITY_OPTIONS = ["低", "中", "高"];
 
-const rawCaseById = new Map((DATASET.cases ?? []).map((item) => [item.case_id, item]));
-
 export const getCaseHeaderById = (caseId: string) => {
-  const rawCase = rawCaseById.get(caseId);
+  const rawCase = RAW_CASE_MAP.get(caseId);
   return {
     systemName: rawCase?.header?.systemName || "会话实时处置台",
     moduleName: rawCase?.header?.moduleName || "客服",
-    totalTurns: rawCase?.header?.totalTurns ?? rawCase?.snapshots?.length ?? 0,
+    totalTurns: rawCase?.header?.totalTurns ?? rawCase?.rounds?.length ?? 0,
   };
 };
 
@@ -396,12 +560,5 @@ export const getSnapshotByCaseAndTurn = (
 export const getCasesByScenario = (scenario: ScenarioType): ConversationCase[] => {
   const direct = MOCK_CASES.filter((item) => item.scenario === scenario);
   if (direct.length > 0) return direct;
-
-  const aliases = LEGACY_SCENARIO_ALIAS[scenario];
-  if (aliases?.length) {
-    const aliasHits = MOCK_CASES.filter((item) => aliases.includes(item.scenario));
-    if (aliasHits.length > 0) return aliasHits;
-  }
-
-  return MOCK_CASES;
+  return MOCK_CASES.slice(0, 1);
 };

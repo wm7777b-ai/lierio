@@ -1,0 +1,455 @@
+{
+  "version": "v4_focused_two_cases",
+  "updatedAt": "2026-03-22",
+  "description": "聚焦版 mock，仅保留 2 个案例：通用高风险处理、端云协同低风险处理。适配当前页面结构：顶部用户基本信息栏、左侧会话流、中间会话理解与处置、右侧下一步处置建议。",
+  "cases": [
+    {
+      "case_id": "case_generic_high_risk_001",
+      "scenario": "generic_high_risk_handling",
+      "scenarioName": "通用高风险处理：重复来电 + 投诉升级",
+      "header": {
+        "systemName": "客服会话智能处置台",
+        "moduleName": "客服",
+        "channel": "电话"
+      },
+      "userBasicInfo": {
+        "phoneOrUid": "139****8822 / U2008822",
+        "sessionId": "S-20260322-HR001",
+        "channel": "电话",
+        "userTags": [
+          "重复来电",
+          "高风险用户"
+        ],
+        "accessTime": "2026-03-22 14:00:00",
+        "queueName": "升级投诉队列",
+        "callDuration": 362,
+        "hasHistory": true,
+        "lastTopic": "处理进度投诉",
+        "lastDisposition": "记录后待处理",
+        "historyInboundCount": 3
+      },
+      "rounds": [
+        {
+          "roundIndex": 1,
+          "timestamp": "14:01:00",
+          "conversationRound": {
+            "customer": "我已经打过两次电话了，你们一直说会处理，到现在还是没人解决。",
+            "agent": "非常抱歉给您带来不便，我先帮您核实一下当前处理记录。"
+          },
+          "recognitionResult": {
+            "currentIntent": "追问处理进度并表达不满",
+            "currentEmotion": "不满",
+            "estimatedMissingInfo": [
+              "当前处理记录细节",
+              "上次承诺节点"
+            ],
+            "suggestionLevel": "强烈建议关注",
+            "suggestionContent": [
+              "建议先安抚情绪，再核查历史处理记录",
+              "避免直接承诺最终处理时点"
+            ],
+            "reasoningBasis": [
+              "用户明确提到已来电两次仍未解决",
+              "当前情绪已出现明显不满",
+              "该场景符合重复来电升级风险特征"
+            ]
+          },
+          "progressiveSummary": "用户因问题未解决再次来电，当前重点是追问处理进度并表达明显不满，系统判断需优先核查历史处理记录。",
+          "postCallClosurePreview": {
+            "summary": "初步判断为重复来电未解决场景，可能进入升级处理。",
+            "archiveCategory": "待定",
+            "suggestedTitle": "重复来电未解决跟进",
+            "riskPointNote": "存在升级风险",
+            "dispositionDraft": "建议核查历史处理记录后再决定是否升级。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "其他",
+              "suggestedPriority": "高",
+              "nextStepAdvice": "先核查历史记录，再确认是否进入升级处理。",
+              "reason": "当前信息不足以直接收口，但风险已高于普通咨询。",
+              "sopTitle": "重复来电安抚与核查SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 2,
+          "timestamp": "14:03:00",
+          "conversationRound": {
+            "customer": "我现在很怀疑你们到底有没有在处理，我今天必须要一个明确说法。",
+            "agent": "我理解您的着急心情，我先帮您确认一下当前进度和责任团队。"
+          },
+          "recognitionResult": {
+            "currentIntent": "要求明确处理时限与责任归属",
+            "currentEmotion": "明显不满",
+            "estimatedMissingInfo": [
+              "责任团队",
+              "最新处理节点"
+            ],
+            "suggestionLevel": "强烈建议关注",
+            "suggestionContent": [
+              "建议切换升级沟通口径",
+              "建议明确说明将核查责任团队与当前节点"
+            ],
+            "reasoningBasis": [
+              "用户要求明确说法，已经不是单纯查询进度",
+              "情绪持续升高，信任感下降",
+              "当前更接近升级投诉处理路径"
+            ]
+          },
+          "progressiveSummary": "用户从追问进度转向要求明确处理说法，情绪持续升高，系统判断会话已接近升级投诉路径。",
+          "postCallClosurePreview": {
+            "summary": "当前会话已从普通进度投诉转向升级投诉处理。",
+            "archiveCategory": "投诉处理中",
+            "suggestedTitle": "升级投诉处理中",
+            "riskPointNote": "情绪持续升级",
+            "dispositionDraft": "建议按升级投诉处理口径继续沟通，并确认责任团队。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "升级处理",
+              "suggestedPriority": "高",
+              "nextStepAdvice": "建议按升级投诉流程生成高优处理单。",
+              "reason": "用户要求明确说法，且多次来电未解决。",
+              "sopTitle": "升级投诉处理SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 3,
+          "timestamp": "14:05:00",
+          "conversationRound": {
+            "customer": "如果今天再不给我处理，我就直接投诉到监管平台。",
+            "agent": "非常抱歉，这边我会立即记录您的升级诉求，并协助转入优先处理流程。"
+          },
+          "recognitionResult": {
+            "currentIntent": "投诉升级并施加时限压力",
+            "currentEmotion": "激动",
+            "estimatedMissingInfo": [],
+            "suggestionLevel": "强烈建议关注",
+            "suggestionContent": [
+              "建议立即切换为高风险升级处理口径",
+              "建议记录监管投诉倾向，不再做普通安抚话术"
+            ],
+            "reasoningBasis": [
+              "用户明确提到监管平台投诉",
+              "当前情绪已达到激动级别",
+              "该节点属于高风险投诉升级场景"
+            ]
+          },
+          "progressiveSummary": "用户已明确提出监管投诉倾向，会话正式进入高风险升级处理阶段，系统判断不适合继续按普通咨询路径推进。",
+          "postCallClosurePreview": {
+            "summary": "当前已进入高风险投诉升级处理，会话后续应转人工重点跟进。",
+            "archiveCategory": "投诉升级",
+            "suggestedTitle": "监管投诉风险升级",
+            "riskPointNote": "高风险投诉 / 监管投诉倾向",
+            "dispositionDraft": "建议记录用户监管投诉倾向，转入高优先级人工接管流程。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "升级处理",
+              "suggestedPriority": "高",
+              "nextStepAdvice": "建议生成高优工单并进入后续升级处理链路。",
+              "reason": "当前已命中高风险投诉升级特征。",
+              "sopTitle": "高风险投诉升级SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 4,
+          "timestamp": "14:07:00",
+          "conversationRound": {
+            "customer": "你们不要再敷衍我了，我今天必须要结果。",
+            "agent": "我明白，这边会为您升级跟进，并由专人尽快回访。"
+          },
+          "recognitionResult": {
+            "currentIntent": "要求立即结果与回访承诺",
+            "currentEmotion": "激动",
+            "estimatedMissingInfo": [],
+            "suggestionLevel": "强烈建议关注",
+            "suggestionContent": [
+              "建议避免承诺不可控结果",
+              "建议确认进入高优先级回访流程"
+            ],
+            "reasoningBasis": [
+              "用户已将诉求聚焦为立即结果",
+              "当前仍处于高风险情绪状态",
+              "适合继续沿升级处理路径推进"
+            ]
+          },
+          "progressiveSummary": "用户持续要求当天获得结果，系统保持高风险判断，并将处理策略收敛到高优先级回访与升级跟进。",
+          "postCallClosurePreview": {
+            "summary": "会话已基本收敛到升级处理与专人回访。",
+            "archiveCategory": "投诉升级",
+            "suggestedTitle": "高优回访升级处理",
+            "riskPointNote": "高风险投诉 / 强时限要求",
+            "dispositionDraft": "建议生成高优工单，明确记录用户当日回访要求，并进入二线升级链路。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "升级处理",
+              "suggestedPriority": "高",
+              "nextStepAdvice": "建议确认生成高优工单，后续由二线承接升级处理。",
+              "reason": "高风险情绪持续，且用户提出明确时限要求。",
+              "sopTitle": "高优回访与升级处理SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 5,
+          "timestamp": "14:09:00",
+          "conversationRound": {
+            "customer": "好，那你们今天必须联系我。",
+            "agent": "我会按升级流程为您提交并记录明确诉求，由专人跟进回访。"
+          },
+          "recognitionResult": {
+            "currentIntent": "确认当日回访要求",
+            "currentEmotion": "不满",
+            "estimatedMissingInfo": [],
+            "suggestionLevel": "无额外建议",
+            "suggestionContent": [],
+            "reasoningBasis": [
+              "升级处理路径已明确",
+              "当前会话已进入收口",
+              "后续重点转为会后高优工单流转"
+            ]
+          },
+          "progressiveSummary": "整通会话中，用户因问题多次来电未解决而持续表达不满，并在中段明确提出监管投诉倾向。系统在识别到重复来电、情绪升级和投诉信号后，持续维持高风险判断，并将处理路径收敛到高优先级升级处理与专人回访。",
+          "postCallClosurePreview": {
+            "summary": "用户因多次来电未解决而表达强烈不满，并明确提出监管投诉倾向，当前会话已按升级处理路径收口。",
+            "archiveCategory": "投诉升级",
+            "suggestedTitle": "高风险投诉升级处理",
+            "riskPointNote": "高风险投诉 / 监管投诉倾向 / 强时限要求",
+            "dispositionDraft": "用户多次来电未解决，已明确表达监管投诉倾向。会话中已转入高风险升级处理口径，建议生成高优工单并由二线跟进回访。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "升级处理",
+              "suggestedPriority": "高",
+              "nextStepAdvice": "建议确认生成高优工单，后续由二线根据工单及优先级进入升级处理。",
+              "reason": "当前场景已明确命中高风险投诉升级路径。",
+              "sopTitle": "高风险投诉升级SOP"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "case_edge_cloud_low_risk_002",
+      "scenario": "edge_cloud_low_risk_handling",
+      "scenarioName": "端云协同低风险处理：App 入口设备离线咨询（含补全信息）",
+      "header": {
+        "systemName": "客服会话智能处置台",
+        "moduleName": "客服",
+        "channel": "App"
+      },
+      "userBasicInfo": {
+        "phoneOrUid": "U1004821",
+        "sessionId": "S-20260322-EC002",
+        "channel": "App",
+        "userTags": [
+          "设备类来电",
+          "低风险标准处理"
+        ],
+        "accessTime": "2026-03-22 16:00:00",
+        "queueName": "设备故障咨询队列",
+        "callDuration": 338,
+        "hasHistory": true,
+        "lastTopic": "监控偶发离线咨询",
+        "lastDisposition": "已解释观察，无正式建单",
+        "historyInboundCount": 1
+      },
+      "edgeCloudContext": {
+        "boundDeviceInfo": "客厅摄像头 CAM-01",
+        "deviceStatus": "离线 2 小时",
+        "deviceFaultCode": "E-OFFLINE",
+        "latestEvent": "最近两小时无心跳",
+        "cloudUnderstanding": "持续离线，建议优先确认网络与供电状态"
+      },
+      "rounds": [
+        {
+          "roundIndex": 1,
+          "timestamp": "16:01:00",
+          "conversationRound": {
+            "customer": "我在 App 里看家里的摄像头，画面一直出不来。",
+            "agent": "好的，我先帮您确认一下设备情况，请问是客厅那台摄像头吗？"
+          },
+          "recognitionResult": {
+            "currentIntent": "反馈设备画面不可见",
+            "currentEmotion": "平稳",
+            "estimatedMissingInfo": [
+              "是否已重启设备",
+              "当前网络状态"
+            ],
+            "suggestionLevel": "存在轻度建议",
+            "suggestionContent": [
+              "建议先确认是否为客厅摄像头",
+              "建议补问是否尝试过重启和检查网络"
+            ],
+            "reasoningBasis": [
+              "App 绑定设备显示客厅摄像头离线 2 小时",
+              "云侧理解为持续离线问题",
+              "当前属于低风险设备故障标准处理场景"
+            ]
+          },
+          "progressiveSummary": "用户从 App 反馈摄像头画面不可见，系统已结合绑定设备和云侧状态初步判断为持续离线问题，当前重点是补全自检信息。",
+          "postCallClosurePreview": {
+            "summary": "初步判断为设备离线类问题，建议按标准故障模板补充确认后处理。",
+            "archiveCategory": "待定",
+            "suggestedTitle": "设备离线问题确认中",
+            "riskPointNote": "无明显高风险",
+            "dispositionDraft": "建议先确认设备对象、自检动作和网络状态。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "其他",
+              "suggestedPriority": "中",
+              "nextStepAdvice": "先补全关键信息，再决定是否生成工单。",
+              "reason": "当前故障方向清晰，但仍缺少自检信息。",
+              "sopTitle": "设备离线初步排查SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 2,
+          "timestamp": "16:03:00",
+          "conversationRound": {
+            "customer": "对，就是客厅那台。我刚才重启过，还是不行。",
+            "agent": "明白了，那我再确认一下，您家里当前网络正常吗？"
+          },
+          "recognitionResult": {
+            "currentIntent": "确认设备对象并反馈重启无效",
+            "currentEmotion": "平稳",
+            "estimatedMissingInfo": [
+              "当前网络状态"
+            ],
+            "suggestionLevel": "存在轻度建议",
+            "suggestionContent": [
+              "建议继续确认网络状态",
+              "建议记录用户已尝试重启"
+            ],
+            "reasoningBasis": [
+              "设备对象已确认",
+              "用户已完成重启但问题未恢复",
+              "云侧持续离线判断仍成立"
+            ]
+          },
+          "progressiveSummary": "用户已确认故障设备为客厅摄像头，并补充说明重启无效。当前判断继续指向设备持续离线，剩余关键点是确认网络状态。",
+          "postCallClosurePreview": {
+            "summary": "设备对象已确认，且用户已尝试重启，当前收口接近标准建单条件。",
+            "archiveCategory": "设备故障处理中",
+            "suggestedTitle": "摄像头持续离线处理中",
+            "riskPointNote": "无明显高风险",
+            "dispositionDraft": "已确认设备对象，用户已重启但无效，建议继续确认网络状态后收口。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "生成工单",
+              "suggestedPriority": "中",
+              "nextStepAdvice": "建议补全网络状态后生成标准故障工单。",
+              "reason": "当前故障方向已较清晰，接近标准处理条件。",
+              "sopTitle": "设备离线标准处理SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 3,
+          "timestamp": "16:05:00",
+          "conversationRound": {
+            "customer": "网络是正常的，家里其他设备都能上网。",
+            "agent": "好的，那我这边基本确认是设备持续离线问题，我再帮您确认一下安装位置和账号尾号。"
+          },
+          "recognitionResult": {
+            "currentIntent": "补全网络状态并进入标准处理确认",
+            "currentEmotion": "平稳",
+            "estimatedMissingInfo": [
+              "安装位置",
+              "账号尾号"
+            ],
+            "suggestionLevel": "存在轻度建议",
+            "suggestionContent": [
+              "建议补全安装位置和账号信息",
+              "建议按设备离线标准处理模板推进"
+            ],
+            "reasoningBasis": [
+              "网络状态正常，排除家庭网络整体异常",
+              "设备离线 2 小时与用户描述一致",
+              "当前已满足标准故障处理的大部分条件"
+            ]
+          },
+          "progressiveSummary": "系统已确认网络正常，结合设备离线和云侧结果，当前判断已基本收敛为单设备持续离线问题，正进入标准处理收口阶段。",
+          "postCallClosurePreview": {
+            "summary": "当前已基本明确为单设备持续离线，补全身份与安装位置信息后可进入标准工单处理。",
+            "archiveCategory": "设备故障处理中",
+            "suggestedTitle": "单设备持续离线待建单",
+            "riskPointNote": "无明显高风险",
+            "dispositionDraft": "网络正常、重启无效，当前判断为单设备持续离线，建议补全安装位置和账号信息后生成工单。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "生成工单",
+              "suggestedPriority": "中",
+              "nextStepAdvice": "建议完成最后信息确认后生成标准工单。",
+              "reason": "当前问题已基本确认，进入标准处理阶段。",
+              "sopTitle": "设备离线标准处理SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 4,
+          "timestamp": "16:07:00",
+          "conversationRound": {
+            "customer": "安装在客厅，账号尾号是4821。",
+            "agent": "好的，信息齐了，我这边给您按设备离线故障处理。"
+          },
+          "recognitionResult": {
+            "currentIntent": "补全最终关键信息",
+            "currentEmotion": "平稳",
+            "estimatedMissingInfo": [],
+            "suggestionLevel": "无额外建议",
+            "suggestionContent": [],
+            "reasoningBasis": [
+              "安装位置已补全",
+              "账号尾号已补全",
+              "当前已具备标准故障工单生成条件"
+            ]
+          },
+          "progressiveSummary": "用户已补全安装位置和账号信息，当前会话的关键信息已完整，系统判断可以进入标准工单收口与后续建议阶段。",
+          "postCallClosurePreview": {
+            "summary": "设备对象、网络状态、自检结果和用户信息已补全，当前可按标准离线故障处理收口。",
+            "archiveCategory": "设备故障",
+            "suggestedTitle": "摄像头持续离线标准处理",
+            "riskPointNote": "无明显高风险",
+            "dispositionDraft": "用户通过 App 反馈客厅摄像头画面不可见。系统结合设备状态与云理解判断为持续离线，已确认重启无效、家庭网络正常，并补全安装位置与账号信息，建议按标准故障工单处理。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "生成工单",
+              "suggestedPriority": "中",
+              "nextStepAdvice": "建议确认后生成标准故障工单；如需，也可同步推送设备自检建议。",
+              "reason": "当前信息完整，属于低风险、标准化设备故障处理场景。",
+              "sopTitle": "设备离线标准处理SOP"
+            }
+          }
+        },
+        {
+          "roundIndex": 5,
+          "timestamp": "16:09:00",
+          "conversationRound": {
+            "customer": "好，那你们帮我处理一下。",
+            "agent": "好的，我这边会先按标准故障工单帮您登记，后续会有处理通知。"
+          },
+          "recognitionResult": {
+            "currentIntent": "确认按标准故障流程处理",
+            "currentEmotion": "平稳",
+            "estimatedMissingInfo": [],
+            "suggestionLevel": "无额外建议",
+            "suggestionContent": [],
+            "reasoningBasis": [
+              "用户已接受当前处理方案",
+              "当前处理路径已明确",
+              "会话进入收口完成状态"
+            ]
+          },
+          "progressiveSummary": "整通会话中，用户通过 App 反馈客厅摄像头画面不可见。系统结合绑定设备状态、故障码和云侧理解，逐步确认该问题属于单设备持续离线场景。会话中补全了重启结果、网络状态、安装位置和账号信息，最终收敛到低风险标准故障处理路径。",
+          "postCallClosurePreview": {
+            "summary": "用户通过 App 反馈客厅摄像头画面不可见。系统结合设备离线状态、故障码和云侧理解判断为持续离线问题。会话中已确认重启无效、网络正常，并补全安装位置和账号信息，当前可按标准故障工单处理。",
+            "archiveCategory": "设备故障",
+            "suggestedTitle": "摄像头持续离线标准处理",
+            "riskPointNote": "低风险标准故障处理",
+            "dispositionDraft": "用户从 App 发起客服，反馈客厅摄像头画面不可见。系统根据账号绑定关系召回设备状态与云理解结果，判断为持续离线问题。会话中已确认重启无效、家庭网络正常，并补全安装位置和账号尾号。建议按标准故障工单处理。",
+            "nextDispositionSuggestion": {
+              "recommendedAction": "生成工单",
+              "suggestedPriority": "中",
+              "nextStepAdvice": "建议确认后生成标准故障工单；当前场景无需升级处理。",
+              "reason": "当前场景为低风险、信息完整、可标准化处理的设备故障问题。",
+              "sopTitle": "设备离线标准处理SOP"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

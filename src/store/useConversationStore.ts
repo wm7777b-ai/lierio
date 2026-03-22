@@ -156,7 +156,7 @@ const buildIdleStateFromCase = (
     conversationMeta: {
       ...sourceCase.meta,
       currentStatus: PAGE_STAGE_LABELS.idle,
-      callDuration: "00:00",
+      callDuration: sourceCase.meta.callDuration,
     },
     conversationTurns: sourceCase.turns,
     monitoringState,
@@ -203,7 +203,7 @@ const applySnapshotByIndex = (
       ...state.conversationMeta,
       ...sourceCase.meta,
       currentStatus: PAGE_STAGE_LABELS[nextStage],
-      callDuration: sourceCase.turns[clampedIndex]?.time ?? state.conversationMeta.callDuration,
+      callDuration: sourceCase.meta.callDuration,
     },
     conversationTurns: sourceCase.turns,
     monitoringState: nextMonitoring,
@@ -220,7 +220,7 @@ const applySnapshotByIndex = (
   }));
 };
 
-const initialCase = MOCK_CASES[0] ?? getScenarioDefaultCase("service");
+const initialCase = getScenarioDefaultCase(MOCK_CASES[0]?.scenario ?? "");
 
 export const useConversationStore = create<ConversationStoreState>((set, get) => ({
   ...buildIdleStateFromCase(initialCase, "auto"),

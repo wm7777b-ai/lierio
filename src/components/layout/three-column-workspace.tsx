@@ -4,14 +4,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 import { buildWorkbenchViewModel } from "@/adapters/workbench-adapter";
+import { ConversationUnderstandingDispositionCard } from "@/components/cards/conversation-understanding-disposition-card";
 import { ConversationTimelineCard } from "@/components/cards/conversation-timeline-card";
 import { FeedbackClosureCard } from "@/components/cards/feedback-closure-card";
-import { InCallSuggestionCard } from "@/components/cards/in-call-suggestion-card";
-import { LiveRecognitionSummaryCard } from "@/components/cards/live-recognition-summary-card";
 import { NextActionCard } from "@/components/cards/next-action-card";
-import { PostDispositionCard } from "@/components/cards/post-disposition-card";
 import { useConversationStore } from "@/store/useConversationStore";
-import type { NextActionType } from "@/types/workbench-view-model";
+import type { NextDispositionAction } from "@/types/workbench-view-model";
 
 const columnMotion = {
   hidden: { opacity: 0, y: 8 },
@@ -32,6 +30,7 @@ export function ThreeColumnWorkspace() {
   const analysisMode = useConversationStore((state) => state.analysisMode);
   const editableCaseDetail = useConversationStore((state) => state.editableCaseDetail);
   const editableRiskPoint = useConversationStore((state) => state.editableRiskPoint);
+  const editableTicketTitle = useConversationStore((state) => state.editableTicketTitle);
   const editableCategory = useConversationStore((state) => state.editableCategory);
   const editablePriority = useConversationStore((state) => state.editablePriority);
   const updateEditableCaseDetail = useConversationStore(
@@ -40,15 +39,25 @@ export function ThreeColumnWorkspace() {
   const updateEditableRiskPoint = useConversationStore(
     (state) => state.updateEditableRiskPoint,
   );
+  const updateEditableTicketTitle = useConversationStore(
+    (state) => state.updateEditableTicketTitle,
+  );
   const updateEditableCategory = useConversationStore((state) => state.updateEditableCategory);
   const submitResult = useConversationStore((state) => state.submitResult);
   const [executedCaseId, setExecutedCaseId] = useState<string | null>(null);
   const actionExecuted = pageStage === "submitted" && executedCaseId === activeCaseId;
   const postSessionFocus = pageStage === "ready" || pageStage === "submitted";
 
-  const handleExecuteNextAction = (actionType: NextActionType) => {
+  const handleExecuteNextAction = (
+    mode: "confirm" | "ticket_only",
+    action: NextDispositionAction,
+  ) => {
     setExecutedCaseId(activeCaseId);
-    if (actionType === "直接归档") {
+    if (mode === "ticket_only") {
+      submitResult("ticket");
+      return;
+    }
+    if (action === "自动归档") {
       submitResult("no_followup");
       return;
     }
@@ -88,10 +97,6 @@ export function ThreeColumnWorkspace() {
               : "space-y-4 opacity-100 transition-opacity"
           }
         >
-          <LiveRecognitionSummaryCard
-            stage={pageStage}
-            status={viewModel.currentSessionStatus}
-          />
           <ConversationTimelineCard
             rounds={viewModel.conversationRounds}
             stage={pageStage}
@@ -109,16 +114,14 @@ export function ThreeColumnWorkspace() {
               : "space-y-4 opacity-100 transition-opacity"
           }
         >
-          <InCallSuggestionCard
+          <ConversationUnderstandingDispositionCard
             stage={pageStage}
-            suggestion={viewModel.inCallSuggestion}
-          />
-          <PostDispositionCard
-            stage={pageStage}
+            insight={viewModel.inCallInsightSuggestion}
             disposition={viewModel.postDisposition}
+            ticketTitle={editableTicketTitle}
             onSummarySave={updateEditableCaseDetail}
             onCategorySave={updateEditableCategory}
-            onDraftSave={updateEditableCaseDetail}
+            onTicketTitleSave={updateEditableTicketTitle}
             onRiskNoteSave={updateEditableRiskPoint}
           />
         </motion.div>

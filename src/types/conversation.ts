@@ -34,7 +34,10 @@ export interface ConversationMeta {
   lastDisposition?: string;
   historyInboundCount?: number;
   boundDeviceInfo?: string;
+  currentDeviceStatus?: string;
   deviceFaultCode?: string;
+  latestKeyEvent?: string;
+  cloudUnderstandingSummary?: string;
 }
 
 export interface ConversationTurn {
@@ -42,6 +45,7 @@ export interface ConversationTurn {
   time: string;
   speaker: "客户" | "客服";
   text: string;
+  agentText?: string;
   recognition: {
     intent: string;
     emotion: EmotionLevel;

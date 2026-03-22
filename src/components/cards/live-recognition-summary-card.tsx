@@ -1,7 +1,6 @@
-import { AlertTriangle, FileText, ShieldAlert } from "lucide-react";
+import { AlertTriangle, FileText, Link2 } from "lucide-react";
 
 import { SectionCard } from "@/components/ui/section-card";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { hasReachedStage } from "@/lib/stage";
 import type { PageStage } from "@/types/conversation";
 import type { CurrentSessionStatusViewModel } from "@/types/workbench-view-model";
@@ -16,6 +15,12 @@ export function LiveRecognitionSummaryCard({
   status,
 }: LiveRecognitionSummaryCardProps) {
   const visible = hasReachedStage(stage, "monitoring");
+  const emotionToneClass =
+    status.currentEmotion === "高风险"
+      ? "text-rose-700"
+      : status.currentEmotion === "激动" || status.currentEmotion === "不满"
+        ? "text-amber-700"
+        : "text-slate-900";
 
   if (!visible) {
     return (
@@ -39,75 +44,18 @@ export function LiveRecognitionSummaryCard({
           <p className="mb-1 text-xs text-slate-500">当前诉求</p>
           <p className="text-sm font-semibold text-slate-900">{status.currentDemand}</p>
         </div>
-        <div
-          className={
-            status.currentEmotion === "高风险"
-              ? "rounded-xl border border-rose-200/70 bg-rose-50/60 p-2.5"
-              : status.currentEmotion === "激动"
-                ? "rounded-xl border border-amber-200/70 bg-amber-50/50 p-2.5"
-              : "rounded-xl border border-slate-200/80 bg-slate-50 p-2.5"
-          }
-        >
+        <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-2.5">
           <p className="mb-1 text-xs text-slate-500">当前情绪</p>
-          <p
-            className={
-              status.currentEmotion === "高风险"
-                ? "text-sm font-semibold text-rose-700"
-                : status.currentEmotion === "激动"
-                  ? "text-sm font-semibold text-amber-700"
-                : "text-sm font-semibold text-slate-900"
-            }
-          >
+          <p className={`text-sm font-semibold ${emotionToneClass}`}>
             {status.currentEmotion}
           </p>
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-2.5">
-          <p className="mb-1 text-xs text-slate-500">当前阶段</p>
-          <p className="text-sm font-semibold text-slate-900">{status.currentStage}</p>
-        </div>
-        <div
-          className={
-            status.riskLevel === "高"
-              ? "rounded-xl border border-rose-200/70 bg-rose-50/60 p-2.5"
-              : status.riskLevel === "中"
-                ? "rounded-xl border border-amber-200/70 bg-amber-50/45 p-2.5"
-                : "rounded-xl border border-slate-200/80 bg-slate-50 p-2.5"
-          }
-        >
-          <p className="mb-1 text-xs text-slate-500">风险等级</p>
-          <p
-            className={
-              status.riskLevel === "高"
-                ? "text-sm font-semibold text-rose-700"
-                : status.riskLevel === "中"
-                  ? "text-sm font-semibold text-amber-700"
-                  : "text-sm font-semibold text-slate-900"
-            }
-          >
-            {status.riskLevel}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-2.5">
-        <p className="mb-1 text-xs font-semibold text-slate-600">关键事实</p>
-        <div className="space-y-1.5">
-          {status.keyFacts.map((fact) => (
-            <p key={fact} className="inline-flex items-start gap-1.5 text-sm text-slate-800">
-              <FileText className="mt-0.5 h-3.5 w-3.5 text-slate-500" />
-              <span>{fact}</span>
-            </p>
-          ))}
-        </div>
-      </div>
-
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5">
-        <p className="mb-1 text-xs font-semibold text-slate-600">缺失信息</p>
+        <p className="mb-1 text-xs font-semibold text-slate-600">预计缺失信息</p>
         <div className="space-y-1.5">
-          {status.missingInfo.map((item) => (
+          {status.expectedMissingInfo.map((item) => (
             <p key={item} className="inline-flex items-center gap-1 text-sm text-slate-700">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
               {item}
@@ -116,29 +64,33 @@ export function LiveRecognitionSummaryCard({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200/80 bg-white p-2.5">
-        <p className="mb-1 text-xs font-semibold text-slate-600">风险提示</p>
-        <div className="flex flex-wrap gap-1.5">
-          <StatusBadge
-            label={`风险等级：${status.riskLevel}`}
-            tone={status.riskLevel === "高" ? "danger" : status.riskLevel === "中" ? "warning" : "neutral"}
-            className="text-[10px]"
-          />
-          {status.riskLevel === "高" ? (
-            <StatusBadge label="建议重点关注" tone="danger" className="text-[10px]" />
-          ) : (
-            <StatusBadge label="持续跟踪中" tone="info" className="text-[10px]" />
-          )}
-          {status.currentEmotion === "高风险" ? (
-            <StatusBadge label="情绪已升级" tone="danger" className="text-[10px]" />
-          ) : null}
-          {status.riskLevel !== "低" ? (
-            <p className="inline-flex items-center gap-1 text-xs text-slate-600">
-              <ShieldAlert className="h-3.5 w-3.5 text-slate-500" />
-              结合上下文进行人工确认
+      <div className="rounded-xl border border-slate-200 bg-white p-2.5">
+        <p className="mb-1 text-xs font-semibold text-slate-600">判断依据</p>
+        <p className="mb-2 text-sm leading-6 text-slate-900">
+          一句话理解：{status.judgmentBasis.oneLineUnderstanding}
+        </p>
+        <div className="space-y-1.5">
+          {status.judgmentBasis.facts.map((fact) => (
+            <p key={fact} className="inline-flex items-start gap-1.5 text-sm text-slate-800">
+              <FileText className="mt-0.5 h-3.5 w-3.5 text-slate-500" />
+              <span>{fact}</span>
             </p>
-          ) : null}
+          ))}
         </div>
+        {status.judgmentBasis.docLinks.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {status.judgmentBasis.docLinks.map((doc) => (
+              <a
+                key={`${doc.label}:${doc.href}`}
+                href={doc.href}
+                className="inline-flex items-center gap-1 text-xs font-medium text-blue-700 hover:text-blue-600"
+              >
+                <Link2 className="h-3.5 w-3.5" />
+                {doc.label}
+              </a>
+            ))}
+          </div>
+        ) : null}
       </div>
     </SectionCard>
   );

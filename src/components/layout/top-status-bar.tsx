@@ -4,10 +4,18 @@ import { ChevronRight, Play, RotateCcw } from "lucide-react";
 
 import { buildTopBarViewModel } from "@/adapters/workbench-adapter";
 import { Button } from "@/components/ui/button";
+import { SCENARIO_OPTIONS } from "@/data/mock-cases";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
 import { useConversationStore } from "@/store/useConversationStore";
-import type { AnalysisMode, ScenarioType } from "@/types/conversation";
+import type { AnalysisMode } from "@/types/conversation";
 
 const primaryStatusToneMap = {
   "未开始": "neutral",
@@ -15,12 +23,6 @@ const primaryStatusToneMap = {
   "人工处理中": "warning",
   "处理完成": "success",
 } as const;
-
-const scenarioOptions: Array<{ label: string; value: ScenarioType }> = [
-  { label: "标准场景", value: "standard_service_query" },
-  { label: "信息补全场景", value: "missing_info_fill_ticket" },
-  { label: "高风险场景", value: "risk_escalation" },
-];
 
 export function TopStatusBar() {
   const selectedScenario = useConversationStore((state) => state.selectedScenario);
@@ -42,6 +44,11 @@ export function TopStatusBar() {
     currentTurnIndex,
     totalTurns,
   });
+  const selectedScenarioOption = SCENARIO_OPTIONS.some(
+    (item) => item.value === selectedScenario,
+  )
+    ? selectedScenario
+    : undefined;
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/95 px-5 py-3 backdrop-blur-xl">
@@ -73,26 +80,25 @@ export function TopStatusBar() {
             className="px-3"
           />
 
-          <div className="inline-flex w-fit rounded-2xl border border-slate-200 bg-slate-50 p-1">
-            {scenarioOptions.map((item) => {
-              const active = selectedScenario === item.value;
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setScenario(item.value)}
-                  className={cn(
-                    "rounded-xl px-3 py-1 text-xs font-medium transition-colors",
-                    active
-                      ? "bg-white text-blue-700 shadow-[0_6px_12px_-10px_rgba(15,23,42,0.35)]"
-                      : "text-slate-500 hover:text-slate-700",
-                  )}
-                >
+          <Select
+            value={selectedScenarioOption}
+            onValueChange={(value) => {
+              const matched = SCENARIO_OPTIONS.find((item) => item.value === value);
+              if (!matched) return;
+              setScenario(matched.value);
+            }}
+          >
+            <SelectTrigger className="h-9 w-[300px] rounded-xl border-slate-200 bg-white text-sm text-slate-800">
+              <SelectValue placeholder="场景选择" />
+            </SelectTrigger>
+            <SelectContent>
+              {SCENARIO_OPTIONS.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
                   {item.label}
-                </button>
-              );
-            })}
-          </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <div className="inline-flex w-fit rounded-2xl border border-slate-200 bg-slate-50 p-1">
             {(["auto", "manual"] as AnalysisMode[]).map((mode) => {

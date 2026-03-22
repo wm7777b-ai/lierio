@@ -11,6 +11,7 @@ import type {
   ResolutionState,
 } from "@/types/conversation";
 import {
+  getCaseById,
   getCaseHeaderById,
   getSnapshotByCaseAndTurn,
 } from "@/data/mock-cases";
@@ -19,7 +20,10 @@ import type {
   ConversationRoundViewModel,
   CurrentSessionStatusViewModel,
   FeedbackClosureViewModel,
+  InCallInsightSuggestionViewModel,
+  InCallPromptStatus,
   InCallSuggestionType,
+  NextDispositionAction,
   InCallSuggestionViewModel,
   NextActionType,
   NextActionViewModel,
@@ -76,8 +80,16 @@ interface BuildInCallSuggestionViewModelInput {
   reviewState: ReviewState;
 }
 
+interface BuildInCallInsightSuggestionViewModelInput {
+  status: CurrentSessionStatusViewModel;
+  suggestion: InCallSuggestionViewModel;
+  resolutionState: ResolutionState;
+  conversationMeta: ConversationMeta;
+}
+
 interface BuildPostDispositionViewModelInput {
   pageStage: PageStage;
+  conversationMeta: ConversationMeta;
   draftState: DraftState;
   finalResultState: FinalResultState;
   resolutionState: ResolutionState;
@@ -117,16 +129,6 @@ const PAGE_STAGE_TO_PROCESSING_STATUS: Record<PageStage, ProcessingStatus> = {
   submitted: "处理完成",
 };
 
-const PAGE_STAGE_TO_CURRENT_STAGE_LABEL: Record<PageStage, string> = {
-  idle: "待分析",
-  monitoring: "会话识别中",
-  drafting: "话中建议生成中",
-  resolving: "处置方案收敛中",
-  reviewing: "人工审查中",
-  ready: "人工处理中",
-  submitted: "处理完成",
-};
-
 const nearestUtteranceBySpeaker = (
   turns: ConversationTurn[],
   index: number,
@@ -161,42 +163,14 @@ const nearestUtteranceBySpeaker = (
 
 const buildDemandDelta = (turns: ConversationTurn[], index: number) => {
   const currentIntent = turns[index]?.recognition.intent ?? "待识别";
-  if (index === 0) return `初始诉求：${currentIntent}`;
-  const prevIntent = turns[index - 1]?.recognition.intent ?? "待识别";
-  if (prevIntent === currentIntent) return `诉求保持：${currentIntent}`;
-  return `诉求变化：${prevIntent} -> ${currentIntent}`;
+  return currentIntent;
 };
 
 const buildEmotionDelta = (turns: ConversationTurn[], index: number) => {
   const currentEmotion = turns[index]?.recognition.emotion ?? "平稳";
-  if (index === 0) return `初始情绪：${currentEmotion}`;
-  const prevEmotion = turns[index - 1]?.recognition.emotion ?? "平稳";
-  if (prevEmotion === currentEmotion) return `情绪保持：${currentEmotion}`;
-  return `情绪变化：${prevEmotion} -> ${currentEmotion}`;
-};
-
-const deriveRiskLevel = (
-  monitoringState: MonitoringState,
-  activeTurn?: ConversationTurn,
-): "低" | "中" | "高" => {
-  if (
-    monitoringState.emotion === "高风险" ||
-    activeTurn?.recognition.risk === "高" ||
-    monitoringState.riskSignals.some((item) => /投诉|升级|监管|高风险/.test(item))
-  ) {
-    return "高";
-  }
-
-  if (
-    monitoringState.emotion === "不满" ||
-    monitoringState.emotion === "激动" ||
-    activeTurn?.recognition.risk === "中" ||
-    monitoringState.riskSignals.some((item) => /争议|拒绝|不满/.test(item))
-  ) {
-    return "中";
-  }
-
-  return "低";
+  if (currentEmotion === "高风险") return "愤怒";
+  if (currentEmotion === "激动" || currentEmotion === "不满") return "激动";
+  return "平稳";
 };
 
 const buildConversationRounds = (
@@ -207,8 +181,10 @@ const buildConversationRounds = (
     id: turn.id,
     roundLabel: `第${index + 1}轮`,
     timestamp: turn.time,
-    customerUtterance: nearestUtteranceBySpeaker(turns, index, "客户"),
-    agentUtterance: nearestUtteranceBySpeaker(turns, index, "客服"),
+    customerUtterance:
+      turn.speaker === "客户" ? turn.text : nearestUtteranceBySpeaker(turns, index, "客户"),
+    agentUtterance:
+      turn.agentText || nearestUtteranceBySpeaker(turns, index, "客服"),
     demandDelta: buildDemandDelta(turns, index),
     emotionDelta: buildEmotionDelta(turns, index),
     isKeyRound:
@@ -235,10 +211,6 @@ export const buildCurrentSessionStatusViewModel = ({
   resolutionState,
 }: BuildCurrentSessionStatusViewModelInput): CurrentSessionStatusViewModel => {
   const snapshot = getSnapshotByCaseAndTurn(activeCaseId, activeTurnIndex);
-  const activeTurn =
-    activeTurnIndex >= 0 && activeTurnIndex < conversationTurns.length
-      ? conversationTurns[activeTurnIndex]
-      : undefined;
 
   const reachedTurns =
     activeTurnIndex >= 0
@@ -249,7 +221,7 @@ export const buildCurrentSessionStatusViewModel = ({
     .filter((item) => item.highlight)
     .map((item) => item.text);
 
-  const keyFacts = [
+  const rawFacts = [
     draftState.customerPainPoint ? `客户诉点：${draftState.customerPainPoint}` : "",
     highlightedFacts[0] ? `关键表达：${highlightedFacts[0]}` : "",
     resolutionState.recommendedAction
@@ -257,24 +229,43 @@ export const buildCurrentSessionStatusViewModel = ({
       : "",
     ...(snapshot?.keyFacts ?? []),
   ].filter(Boolean);
+  const facts = Array.from(new Set(rawFacts));
+  const expectedMissingInfo =
+    (snapshot?.missingInfo?.length ?? 0) > 0
+      ? snapshot?.missingInfo ?? []
+      : monitoringState.missingInfo.length > 0
+        ? monitoringState.missingInfo
+        : ["暂无明显缺失信息"];
+  const oneLineUnderstanding =
+    snapshot?.conversationSummary ||
+    draftState.caseDetail ||
+    "系统正在汇总当前会话理解。";
+  const docLinks =
+    resolutionState.sopTitle?.trim()
+      ? [{ label: `文档索引：${resolutionState.sopTitle}`, href: "#" }]
+      : [];
 
   return {
     summary:
       pageStage === "idle"
         ? "分析未开始，待生成会话摘要。"
-        : snapshot?.conversationSummary || draftState.caseDetail || "暂无会话摘要",
+        : resolveStableSummary({
+            activeCaseId,
+            activeTurnIndex,
+            currentEmotion: snapshot?.emotion || monitoringState.emotion,
+          }) ||
+          snapshot?.conversationSummary ||
+          draftState.caseDetail ||
+          "暂无会话摘要",
     currentDemand:
       snapshot?.currentIntent || draftState.customerDemand || monitoringState.currentIntent || "待识别",
     currentEmotion: snapshot?.emotion || monitoringState.emotion,
-    currentStage: snapshot?.currentStage || PAGE_STAGE_TO_CURRENT_STAGE_LABEL[pageStage],
-    riskLevel: snapshot?.riskLevel || deriveRiskLevel(monitoringState, activeTurn),
-    keyFacts: keyFacts.length > 0 ? keyFacts : ["暂无关键事实"],
-    missingInfo:
-      (snapshot?.missingInfo?.length ?? 0) > 0
-        ? snapshot?.missingInfo ?? []
-        : monitoringState.missingInfo.length > 0
-          ? monitoringState.missingInfo
-        : ["暂无明显缺失信息"],
+    expectedMissingInfo,
+    judgmentBasis: {
+      oneLineUnderstanding,
+      facts: facts.length > 0 ? facts : ["暂无关键事实"],
+      docLinks,
+    },
   };
 };
 
@@ -282,6 +273,14 @@ export const buildBasicInfoViewModel = ({
   activeCaseId: _activeCaseId,
   conversationMeta,
 }: BuildBasicInfoViewModelInput): BasicInfoViewModel => {
+  const hasEdgeCloudContext = Boolean(
+    conversationMeta.boundDeviceInfo ||
+      conversationMeta.currentDeviceStatus ||
+      conversationMeta.deviceFaultCode ||
+      conversationMeta.latestKeyEvent ||
+      conversationMeta.cloudUnderstandingSummary,
+  );
+
   return {
     uidOrPhone: conversationMeta.phone || conversationMeta.uid || "待补充",
     sessionId: conversationMeta.id,
@@ -292,8 +291,14 @@ export const buildBasicInfoViewModel = ({
     customerType: conversationMeta.customerType,
     userTags: conversationMeta.customerTags.slice(0, 2),
     historyRiskTags: conversationMeta.historyTags.slice(0, 2),
-    deviceInfo: conversationMeta.boundDeviceInfo,
-    deviceFaultCode: conversationMeta.deviceFaultCode,
+    edgeCloud: {
+      enabled: hasEdgeCloudContext,
+      boundDevice: conversationMeta.boundDeviceInfo,
+      deviceStatus: conversationMeta.currentDeviceStatus,
+      faultCode: conversationMeta.deviceFaultCode,
+      latestEvent: conversationMeta.latestKeyEvent,
+      cloudSummary: conversationMeta.cloudUnderstandingSummary,
+    },
     historyConsultation: {
       hasHistory: Boolean(conversationMeta.hasHistory),
       lastTopic: conversationMeta.lastTopic,
@@ -307,6 +312,48 @@ const mapBranchToType = (branch: "silent" | "light" | "strong"): InCallSuggestio
   if (branch === "strong") return "强提示";
   if (branch === "light") return "轻提示";
   return "静默更新";
+};
+
+const SUMMARY_BATCH_TURN_INTERVAL = 2;
+
+const isAgitatedEmotion = (emotion: EmotionLevel) =>
+  emotion === "激动" || emotion === "高风险";
+
+// Demo summary update rule: batched refresh (approx 30s window) + immediate refresh on agitated emotion.
+const resolveStableSummary = ({
+  activeCaseId,
+  activeTurnIndex,
+  currentEmotion,
+}: {
+  activeCaseId: string;
+  activeTurnIndex: number;
+  currentEmotion: EmotionLevel;
+}) => {
+  const sourceCase = getCaseById(activeCaseId);
+  if (!sourceCase || activeTurnIndex < 0) return undefined;
+  const maxIndex = Math.max(0, sourceCase.snapshots.length - 1);
+  const clampedIndex = Math.max(0, Math.min(activeTurnIndex, maxIndex));
+
+  if (clampedIndex === maxIndex) {
+    return sourceCase.snapshots[maxIndex]?.conversationSummary;
+  }
+
+  if (isAgitatedEmotion(currentEmotion)) {
+    return sourceCase.snapshots[clampedIndex]?.conversationSummary;
+  }
+
+  const stableIndex =
+    Math.floor(clampedIndex / SUMMARY_BATCH_TURN_INTERVAL) *
+    SUMMARY_BATCH_TURN_INTERVAL;
+  return sourceCase.snapshots[stableIndex]?.conversationSummary;
+};
+
+const mapPromptStatus = (
+  suggestionType: InCallSuggestionType,
+): InCallPromptStatus => {
+  if (suggestionType === "强提示") return "强烈建议关注";
+  if (suggestionType === "轻提示") return "存在轻度建议";
+  return "无额外建议";
 };
 
 const hasEscalateSignals = (
@@ -389,6 +436,48 @@ export const buildInCallSuggestionViewModel = ({
   };
 };
 
+export const buildInCallInsightSuggestionViewModel = ({
+  status,
+  suggestion,
+  resolutionState,
+  conversationMeta,
+}: BuildInCallInsightSuggestionViewModelInput): InCallInsightSuggestionViewModel => {
+  const promptStatus = mapPromptStatus(suggestion.suggestionType);
+  const hasActionableSuggestion = promptStatus !== "无额外建议";
+  const edgeCloudEvidence = [
+    conversationMeta.currentDeviceStatus
+      ? `设备状态为${conversationMeta.currentDeviceStatus}`
+      : "",
+    conversationMeta.deviceFaultCode
+      ? `故障码为${conversationMeta.deviceFaultCode}`
+      : "",
+    conversationMeta.latestKeyEvent
+      ? `最近关键事件为${conversationMeta.latestKeyEvent}`
+      : "",
+    conversationMeta.cloudUnderstandingSummary
+      ? `云侧理解为${conversationMeta.cloudUnderstandingSummary}`
+      : "",
+  ].filter(Boolean);
+  const edgeCloudEvidenceText =
+    edgeCloudEvidence.length > 0
+      ? `，并结合${edgeCloudEvidence.join("，")}`
+      : "";
+
+  return {
+    summary: status.summary,
+    currentDemand: status.currentDemand,
+    currentEmotion: status.currentEmotion,
+    expectedMissingInfo: status.expectedMissingInfo,
+    promptStatus,
+    suggestionContent: hasActionableSuggestion ? suggestion.suggestions : [],
+    judgmentBasis: hasActionableSuggestion
+      ? `AI 结合 ${resolutionState.sopTitle || "SOP文档"} 和当前对话信息${edgeCloudEvidenceText}综合判断：${suggestion.triggerReason}`
+      : "",
+    docLinks: hasActionableSuggestion ? status.judgmentBasis.docLinks : [],
+    weakDisplay: promptStatus === "无额外建议",
+  };
+};
+
 const PAGE_STAGE_TO_POST_DISPOSITION_LABEL: Record<PageStage, string> = {
   idle: "待生成",
   monitoring: "会中草稿",
@@ -401,6 +490,7 @@ const PAGE_STAGE_TO_POST_DISPOSITION_LABEL: Record<PageStage, string> = {
 
 export const buildPostDispositionViewModel = ({
   pageStage,
+  conversationMeta,
   draftState,
   finalResultState,
   resolutionState,
@@ -409,14 +499,42 @@ export const buildPostDispositionViewModel = ({
   editableCategory,
   editableRiskPoint,
 }: BuildPostDispositionViewModelInput): PostDispositionViewModel => {
+  const edgeCloudNarrative = [
+    conversationMeta.boundDeviceInfo
+      ? `绑定设备${conversationMeta.boundDeviceInfo}`
+      : "",
+    conversationMeta.currentDeviceStatus
+      ? `当前设备状态${conversationMeta.currentDeviceStatus}`
+      : "",
+    conversationMeta.deviceFaultCode
+      ? `故障码${conversationMeta.deviceFaultCode}`
+      : "",
+    conversationMeta.latestKeyEvent
+      ? `关键事件${conversationMeta.latestKeyEvent}`
+      : "",
+    conversationMeta.cloudUnderstandingSummary
+      ? `云侧理解：${conversationMeta.cloudUnderstandingSummary}`
+      : "",
+  ].filter(Boolean);
+
   const finalSummary =
     editableCaseDetail ||
     (pageStage === "submitted"
       ? finalResultState.summary
       : draftState.caseDetail);
+  const rawDispositionDraft = editableCaseDetail || draftState.caseDetail;
+  const edgeCloudNarrativeText = edgeCloudNarrative.join("；");
+  const dispositionDraft =
+    edgeCloudNarrativeText && !rawDispositionDraft.includes(edgeCloudNarrativeText)
+      ? [rawDispositionDraft, edgeCloudNarrativeText].filter(Boolean).join("；")
+      : rawDispositionDraft;
 
   const riskNoteSource = [
     editableRiskPoint || draftState.riskPoint,
+    conversationMeta.currentDeviceStatus &&
+    /离线|异常|故障/.test(conversationMeta.currentDeviceStatus)
+      ? `设备异常等级提示：${conversationMeta.currentDeviceStatus}`
+      : "",
     reviewState.currentAlert ? `审查提示：${reviewState.currentAlert}` : "",
   ]
     .filter(Boolean)
@@ -432,7 +550,7 @@ export const buildPostDispositionViewModel = ({
   return {
     summary: finalSummary,
     archiveCategory: editableCategory || finalResultState.category || "待归档",
-    dispositionDraft: editableCaseDetail || draftState.caseDetail,
+    dispositionDraft,
     riskNote: riskNoteSource,
     followUpSuggestions,
     stageLabel: PAGE_STAGE_TO_POST_DISPOSITION_LABEL[pageStage],
@@ -472,40 +590,12 @@ const resolveActionPath = ({
   return "标准处理路径";
 };
 
-const resolveActionTemplate = (
+const mapActionTypeToDispositionAction = (
   actionType: NextActionType,
-  resolutionState: ResolutionState,
-) => {
-  if (actionType === "直接归档") {
-    return {
-      actionName: "直接归档会话",
-      actionReason: "当前会话已完成标准处理，且无需额外后续动作。",
-      suggestionNote: resolutionState.nextStepAdvice || "建议按标准流程直接归档。",
-      riskTip: undefined,
-    };
-  }
-  if (actionType === "一键执行") {
-    return {
-      actionName: "一键执行标准动作",
-      actionReason: "当前信息完整，动作为标准化流程，可直接执行。",
-      suggestionNote: resolutionState.nextStepAdvice || "建议直接执行并沉淀处理结果。",
-      riskTip: undefined,
-    };
-  }
-  if (actionType === "人工接管") {
-    return {
-      actionName: "转人工接管处理",
-      actionReason: "当前场景存在高风险或稳定性不足，不建议自动执行。",
-      suggestionNote: resolutionState.nextStepAdvice || "建议人工接管并优先处理风险事项。",
-      riskTip: "当前存在风险升级信号，请先人工接管再进入后续动作。",
-    };
-  }
-  return {
-    actionName: "确认关键字段后执行",
-    actionReason: "当前动作可执行，但仍需人工确认关键字段与处理路径。",
-    suggestionNote: resolutionState.nextStepAdvice || "建议确认分类与优先级后再执行。",
-    riskTip: undefined,
-  };
+): NextDispositionAction => {
+  if (actionType === "直接归档") return "自动归档";
+  if (actionType === "人工接管") return "升级处理";
+  return "生成工单";
 };
 
 export const buildNextActionViewModel = ({
@@ -538,29 +628,27 @@ export const buildNextActionViewModel = ({
     hasMissingInfo,
     archiveCategory,
   });
-  const template = resolveActionTemplate(actionType, resolutionState);
+  const recommendedAction = mapActionTypeToDispositionAction(actionType);
+  const suggestedPriority =
+    resolutionState.suggestedPriority ||
+    editablePriority ||
+    finalResultState.priority ||
+    "中";
+  const baseReason = resolutionState.reason || "系统根据当前会话状态给出处置建议。";
+  const recommendedReason = reviewState.currentAlert
+    ? `${baseReason}（${reviewState.currentAlert}）`
+    : baseReason;
 
   return {
     actionType,
     actionPath,
-    actionName: template.actionName,
-    actionReason: `${template.actionReason}（当前优先级：${
-      editablePriority || finalResultState.priority || "中"
-    }）${
-      reviewState.currentAlert ? `（${reviewState.currentAlert}）` : ""
-    }`,
-    needConfirmation: actionType === "确认后执行" || actionType === "人工接管",
-    suggestionNote: template.suggestionNote,
-    riskTip: template.riskTip,
-    canExecuteDirectly: actionType === "一键执行" || actionType === "直接归档",
-    executeButtonLabel:
-      actionType === "直接归档"
-        ? "直接归档"
-        : actionType === "一键执行"
-          ? "一键执行"
-          : actionType === "确认后执行"
-            ? "确认后执行"
-            : "转人工接管",
+    recommendedAction,
+    recommendedActionOptions: ["自动归档", "生成工单", "升级处理", "其他"],
+    suggestedPriority,
+    nextStepAdvice: resolutionState.nextStepAdvice || "建议按当前流程继续处理。",
+    recommendedReason:
+      recommendedReason || "系统已结合当前会话信息给出处置建议。",
+    sopTitle: resolutionState.sopTitle || "无",
     weakDisplay: pageStage !== "ready" && pageStage !== "submitted",
   };
 };
@@ -580,39 +668,18 @@ export const buildFeedbackClosureViewModel = ({
   const lowConfidenceSignals =
     reviewState.shouldFallback || reviewState.confidence === "低";
 
-  const candidateBadcase = highRiskSignals || lowConfidenceSignals;
-  const status =
-    pageStage === "submitted"
-      ? candidateBadcase
-        ? "候选 badcase"
-        : "已自动沉淀"
-      : "待收尾";
-
-  const candidateReason = candidateBadcase
-    ? [
-        highRiskSignals ? "当前处置进入风险升级路径" : "",
-        lowConfidenceSignals ? "结果稳定性不足，建议进入候选问题样本" : "",
-      ]
-        .filter(Boolean)
-        .join("；")
-    : undefined;
-
-  const lightFeedbackOptions = reviewState.lightFeedbackEnabled
-    ? ["建议不准", "分类有误", "触发时机不对", "动作建议不合适"]
-    : [];
+  const fallbackToBadcase =
+    reviewState.depositType === "candidate_badcase_auto_mark" ||
+    reviewState.candidateBadcase === true ||
+    highRiskSignals ||
+    lowConfidenceSignals;
+  const depositToKnowledgeBase =
+    pageStage === "submitted" && !fallbackToBadcase;
 
   return {
-    status,
-    candidateBadcase,
-    candidateReason,
-    summary: reviewState.depositReason || "本次结果已纳入服务处置沉淀。",
-    suggestionNote:
-      status === "待收尾"
-        ? "待下一步动作完成后自动沉淀。"
-        : candidateBadcase
-          ? "已自动标记候选问题样本，可补充轻量反馈。"
-          : "本次结果已自动沉淀，可按需补充轻量反馈。",
-    lightFeedbackOptions,
+    demoTitleInternal: "反馈沉淀（知识库沉淀 / badcase回流）",
+    depositToKnowledgeBase,
+    fallbackToBadcase,
     weakDisplay: true,
   };
 };
@@ -660,6 +727,31 @@ export const buildWorkbenchViewModel = ({
   editablePriority,
   editableRiskPoint,
 }: BuildWorkbenchViewModelInput): WorkbenchViewModel => {
+  const currentSessionStatus = buildCurrentSessionStatusViewModel({
+    activeCaseId,
+    pageStage,
+    activeTurnIndex: currentTurnIndex,
+    conversationTurns,
+    monitoringState,
+    draftState,
+    resolutionState,
+  });
+  const inCallSuggestion = buildInCallSuggestionViewModel({
+    pageStage,
+    activeCaseId,
+    activeTurnIndex: currentTurnIndex,
+    conversationMeta,
+    monitoringState,
+    resolutionState,
+    reviewState,
+  });
+  const inCallInsightSuggestion = buildInCallInsightSuggestionViewModel({
+    status: currentSessionStatus,
+    suggestion: inCallSuggestion,
+    resolutionState,
+    conversationMeta,
+  });
+
   const nextAction = buildNextActionViewModel({
     pageStage,
     activeCaseId,
@@ -687,26 +779,12 @@ export const buildWorkbenchViewModel = ({
       conversationTurns,
       currentTurnIndex,
     ),
-    currentSessionStatus: buildCurrentSessionStatusViewModel({
-      activeCaseId,
-      pageStage,
-      activeTurnIndex: currentTurnIndex,
-      conversationTurns,
-      monitoringState,
-      draftState,
-      resolutionState,
-    }),
-    inCallSuggestion: buildInCallSuggestionViewModel({
-      pageStage,
-      activeCaseId,
-      activeTurnIndex: currentTurnIndex,
-      conversationMeta,
-      monitoringState,
-      resolutionState,
-      reviewState,
-    }),
+    currentSessionStatus,
+    inCallSuggestion,
+    inCallInsightSuggestion,
     postDisposition: buildPostDispositionViewModel({
       pageStage,
+      conversationMeta,
       draftState,
       finalResultState,
       resolutionState,

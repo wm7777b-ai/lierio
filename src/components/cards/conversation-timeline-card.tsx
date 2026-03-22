@@ -16,11 +16,16 @@ export function ConversationTimelineCard({
   stage,
 }: ConversationTimelineCardProps) {
   const visible = hasReachedStage(stage, "monitoring");
+  const getEmotionToneClass = (emotion: string) => {
+    if (emotion.includes("愤怒")) return "text-red-600";
+    if (emotion.includes("激动")) return "text-amber-600";
+    return "text-black";
+  };
 
   return (
     <SectionCard
       title="会话流"
-      description="逐轮会话变化与关键轮次"
+      description="逐轮对话与当轮状态"
       tone="focus"
       className="min-h-[560px]"
     >
@@ -69,30 +74,31 @@ export function ConversationTimelineCard({
                     </div>
 
                     <div className="space-y-1.5">
-                      <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-2">
-                        <p className="text-[11px] text-slate-500">客户发言</p>
-                        <p className="mt-0.5 text-sm leading-6 text-slate-900">
-                          {round.customerUtterance}
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-2">
-                        <p className="text-[11px] text-slate-500">座席发言</p>
-                        <p className="mt-0.5 text-sm leading-6 text-slate-900">
-                          {round.agentUtterance}
-                        </p>
-                      </div>
+                      <p className="text-sm leading-6 text-slate-900">
+                        <span className="mr-1.5 font-semibold text-slate-500">客户：</span>
+                        {round.customerUtterance}
+                      </p>
+                      <p className="text-sm leading-6 text-slate-900">
+                        <span className="mr-1.5 font-semibold text-slate-500">座席：</span>
+                        {round.agentUtterance}
+                      </p>
                     </div>
 
                     <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
                       <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
-                        <p className="text-[11px] text-slate-500">诉求变化</p>
+                        <p className="text-[11px] text-slate-500">当轮诉求</p>
                         <p className="mt-0.5 text-[13px] font-medium text-slate-800">
                           {round.demandDelta}
                         </p>
                       </div>
                       <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
-                        <p className="text-[11px] text-slate-500">情绪变化</p>
-                        <p className="mt-0.5 text-[13px] font-medium text-slate-800">
+                        <p className="text-[11px] text-slate-500">当轮情绪</p>
+                        <p
+                          className={cn(
+                            "mt-0.5 text-[13px] font-semibold",
+                            getEmotionToneClass(round.emotionDelta),
+                          )}
+                        >
                           {round.emotionDelta}
                         </p>
                       </div>
