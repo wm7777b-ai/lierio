@@ -61,6 +61,9 @@ export function TopStatusBar() {
             <p className="text-sm font-medium text-slate-600">
               {topBarViewModel.subtitle}
             </p>
+            <p className="mt-1 text-xs text-slate-500">
+              {topBarViewModel.workflowHint}
+            </p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -79,6 +82,16 @@ export function TopStatusBar() {
             tone="intent"
             className="px-3"
           />
+
+          <StatusBadge
+            label={`Agent：${topBarViewModel.agentStatusLabel}`}
+            tone="info"
+            className="px-3"
+          />
+
+          <div className="inline-flex h-9 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600">
+            {topBarViewModel.turnProgressLabel}
+          </div>
 
           <Select
             value={selectedScenarioOption}

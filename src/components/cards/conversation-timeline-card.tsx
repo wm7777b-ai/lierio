@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -16,6 +20,16 @@ export function ConversationTimelineCard({
   stage,
 }: ConversationTimelineCardProps) {
   const visible = hasReachedStage(stage, "monitoring");
+  const activeRoundRef = useRef<HTMLDivElement | null>(null);
+  const reachedCount = rounds.filter((item) => item.isReached).length;
+
+  useEffect(() => {
+    activeRoundRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [rounds]);
+
   const getEmotionToneClass = (emotion: string) => {
     if (emotion.includes("愤怒")) return "text-red-600";
     if (emotion.includes("激动")) return "text-amber-600";
@@ -28,6 +42,14 @@ export function ConversationTimelineCard({
       description="逐轮对话与当轮状态"
       tone="focus"
       className="min-h-[560px]"
+      headerExtra={
+        visible ? (
+          <StatusBadge
+            label={`已推进 ${reachedCount} / ${rounds.length}`}
+            tone="neutral"
+          />
+        ) : null
+      }
     >
       {!visible ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-sm text-slate-500">
@@ -38,7 +60,11 @@ export function ConversationTimelineCard({
           <div className="space-y-3">
             {rounds.map((round, index) => {
               return (
-                <div key={round.id} className="grid grid-cols-[16px_1fr] gap-2.5">
+                <div
+                  key={round.id}
+                  ref={round.isActive ? activeRoundRef : null}
+                  className="grid grid-cols-[16px_1fr] gap-2.5"
+                >
                   <div className="relative pt-1">
                     <span
                       className={cn(

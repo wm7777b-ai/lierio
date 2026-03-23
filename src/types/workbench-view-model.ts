@@ -11,6 +11,9 @@ export interface TopBarViewModel {
   subtitle: string;
   moduleLabel: string;
   processingStatus: ProcessingStatus;
+  agentStatusLabel: string;
+  workflowHint: string;
+  turnProgressLabel: string;
   analysisMode: AnalysisMode;
   canStepManually: boolean;
 }

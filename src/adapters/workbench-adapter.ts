@@ -11,6 +11,7 @@ import type {
   ResolutionState,
 } from "@/types/conversation";
 import {
+  AGENT_CURRENT_STATUS_LABELS,
   getCaseById,
   getCaseHeaderById,
   getSnapshotByCaseAndTurn,
@@ -127,6 +128,19 @@ const PAGE_STAGE_TO_PROCESSING_STATUS: Record<PageStage, ProcessingStatus> = {
   reviewing: "AI分析总结中",
   ready: "人工处理中",
   submitted: "处理完成",
+};
+
+const buildWorkflowHint = (pageStage: PageStage) => {
+  if (pageStage === "idle") {
+    return "等待开始分析，系统会按识别、建议、话后总结和下一步处置逐步收口。";
+  }
+  if (pageStage === "ready") {
+    return "会话已收口，建议优先核对摘要、风险点和下一步处置建议。";
+  }
+  if (pageStage === "submitted") {
+    return "结果已确认提交，当前可直接查看后续处置与沉淀结果。";
+  }
+  return "当前以会中识别与建议为主，帮助座席减少理解和总结时间。";
 };
 
 const nearestUtteranceBySpeaker = (
@@ -700,6 +714,12 @@ export const buildTopBarViewModel = ({
     subtitle: "用AI重构座席会话处理工作流",
     moduleLabel: `${header.moduleName}模块`,
     processingStatus: PAGE_STAGE_TO_PROCESSING_STATUS[pageStage],
+    agentStatusLabel: AGENT_CURRENT_STATUS_LABELS[pageStage],
+    workflowHint: buildWorkflowHint(pageStage),
+    turnProgressLabel:
+      currentTurnIndex >= 0 && totalTurns > 0
+        ? `会话进度 ${Math.min(currentTurnIndex + 1, totalTurns)} / ${totalTurns}`
+        : `会话进度 0 / ${totalTurns}`,
     analysisMode,
     canStepManually:
       analysisMode === "manual" &&
