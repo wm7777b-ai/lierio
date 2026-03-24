@@ -44,6 +44,7 @@ interface ConversationStoreState {
   setAnalysisMode: (mode: AnalysisMode) => void;
   startAnalysis: () => void;
   nextTurn: () => void;
+  jumpToTurn: (turnIndex: number) => void;
   resetPage: () => void;
   updateEditableCaseDetail: (value: string) => void;
   updateEditableCustomerDemand: (value: string) => void;
@@ -83,17 +84,10 @@ const resolveStageByTurn = (
   turnIndex: number,
   totalTurns: number,
 ): PageStage => {
-  const shouldSwitchToHuman =
-    snapshot.decision.shouldEscalate ||
-    snapshot.emotion === "高风险" ||
-    snapshot.riskLevel === "高" ||
-    snapshot.riskSignals.some((item) => item.includes("投诉"));
-
   if (turnIndex === 0) return "monitoring";
   if (turnIndex === 1) return "drafting";
   if (turnIndex === 2) return "resolving";
   if (turnIndex >= totalTurns - 1) return "ready";
-  if (turnIndex >= 3 && shouldSwitchToHuman) return "ready";
   return "reviewing";
 };
 
@@ -276,6 +270,12 @@ export const useConversationStore = create<ConversationStoreState>((set, get) =>
       currentIndex < 0 ? 0 : Math.max(0, Math.min(currentIndex + 1, maxIndex));
     set({ isAutoProgressing: false });
     applySnapshotByIndex(set, get, nextIndex);
+  },
+
+  jumpToTurn: (turnIndex) => {
+    clearProgressionTimers();
+    set({ isAutoProgressing: false });
+    applySnapshotByIndex(set, get, turnIndex);
   },
 
   resetPage: () => {

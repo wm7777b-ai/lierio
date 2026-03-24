@@ -122,25 +122,25 @@ interface BuildFeedbackClosureViewModelInput {
 
 const PAGE_STAGE_TO_PROCESSING_STATUS: Record<PageStage, ProcessingStatus> = {
   idle: "未开始",
-  monitoring: "AI分析总结中",
-  drafting: "AI分析总结中",
-  resolving: "AI分析总结中",
-  reviewing: "AI分析总结中",
-  ready: "人工处理中",
+  monitoring: "话中处理",
+  drafting: "话中处理",
+  resolving: "话中处理",
+  reviewing: "话中处理",
+  ready: "话后处理",
   submitted: "处理完成",
 };
 
 const buildWorkflowHint = (pageStage: PageStage) => {
   if (pageStage === "idle") {
-    return "等待开始分析，系统会按识别、建议、话后总结和下一步处置逐步收口。";
+    return "等待开始分析，系统会按识别、建议、话后总结和下一步处置逐步归档。";
   }
   if (pageStage === "ready") {
-    return "会话已收口，建议优先核对摘要、风险点和下一步处置建议。";
+    return "会话已进入话后归档阶段，建议优先核对摘要、风险点和下一步处置建议。";
   }
   if (pageStage === "submitted") {
     return "结果已确认提交，当前可直接查看后续处置与沉淀结果。";
   }
-  return "当前以会中识别与建议为主，帮助座席减少理解和总结时间。";
+  return "当前以话中识别与建议为主，帮助座席减少理解和总结时间。";
 };
 
 const nearestUtteranceBySpeaker = (
@@ -370,15 +370,6 @@ const mapPromptStatus = (
   return "无额外建议";
 };
 
-const hasEscalateSignals = (
-  emotion: EmotionLevel,
-  monitoringState: MonitoringState,
-  resolutionState: ResolutionState,
-) =>
-  emotion === "高风险" ||
-  resolutionState.escalate ||
-  monitoringState.riskSignals.some((item) => /投诉|升级|合规|争议/.test(item));
-
 export const buildInCallSuggestionViewModel = ({
   pageStage,
   activeCaseId,
@@ -386,7 +377,6 @@ export const buildInCallSuggestionViewModel = ({
   conversationMeta,
   monitoringState,
   resolutionState,
-  reviewState,
 }: BuildInCallSuggestionViewModelInput): InCallSuggestionViewModel => {
   if (pageStage === "idle" || activeTurnIndex < 0) {
     return {
@@ -402,14 +392,7 @@ export const buildInCallSuggestionViewModel = ({
   const snapshot = getSnapshotByCaseAndTurn(activeCaseId, activeTurnIndex);
   const routeType = snapshot?.suggestion?.routeType ?? "silent_update";
   const branch = routeType === "strong_alert" ? "strong" : routeType === "light_suggestion" ? "light" : "silent";
-
-  const escalate = hasEscalateSignals(
-    snapshot?.emotion || monitoringState.emotion,
-    monitoringState,
-    resolutionState,
-  );
-  const finalType =
-    escalate && branch !== "strong" ? "强提示" : mapBranchToType(branch);
+  const finalType = mapBranchToType(branch);
 
   const triggerReasonBase =
     snapshot?.suggestion?.triggerReason || "会话持续更新，系统已同步当前建议。";
@@ -427,9 +410,6 @@ export const buildInCallSuggestionViewModel = ({
   }
   if (conversationMeta.hasHistory && conversationMeta.lastDisposition) {
     suggestions.push(`历史处置参考：${conversationMeta.lastDisposition}`);
-  }
-  if (reviewState.currentAlert) {
-    suggestions.push(`审查提示：${reviewState.currentAlert}`);
   }
 
   return {
@@ -494,12 +474,12 @@ export const buildInCallInsightSuggestionViewModel = ({
 
 const PAGE_STAGE_TO_POST_DISPOSITION_LABEL: Record<PageStage, string> = {
   idle: "待生成",
-  monitoring: "会中草稿",
-  drafting: "会中草稿",
-  resolving: "会中收敛",
+  monitoring: "话中草稿",
+  drafting: "话中草稿",
+  resolving: "话中收敛",
   reviewing: "待确认",
   ready: "可确认",
-  submitted: "已收口",
+  submitted: "已归档",
 };
 
 export const buildPostDispositionViewModel = ({
@@ -549,7 +529,6 @@ export const buildPostDispositionViewModel = ({
     /离线|异常|故障/.test(conversationMeta.currentDeviceStatus)
       ? `设备异常等级提示：${conversationMeta.currentDeviceStatus}`
       : "",
-    reviewState.currentAlert ? `审查提示：${reviewState.currentAlert}` : "",
   ]
     .filter(Boolean)
     .join("；") || "当前未识别到明确高风险。";
@@ -648,10 +627,8 @@ export const buildNextActionViewModel = ({
     editablePriority ||
     finalResultState.priority ||
     "中";
-  const baseReason = resolutionState.reason || "系统根据当前会话状态给出处置建议。";
-  const recommendedReason = reviewState.currentAlert
-    ? `${baseReason}（${reviewState.currentAlert}）`
-    : baseReason;
+  const recommendedReason =
+    resolutionState.reason || "系统根据当前会话状态给出处置建议。";
 
   return {
     actionType,
@@ -707,11 +684,8 @@ export const buildTopBarViewModel = ({
 }: BuildTopBarViewModelInput): TopBarViewModel => {
   const header = getCaseHeaderById(activeCaseId);
   return {
-    systemName:
-      header.systemName === "客服会话智能处置台"
-        ? "会话实时处置台"
-        : header.systemName,
-    subtitle: "用AI重构座席会话处理工作流",
+    systemName: "会话分析处置台",
+    subtitle: "用AI重构座席会话服务工作流",
     moduleLabel: `${header.moduleName}模块`,
     processingStatus: PAGE_STAGE_TO_PROCESSING_STATUS[pageStage],
     agentStatusLabel: AGENT_CURRENT_STATUS_LABELS[pageStage],

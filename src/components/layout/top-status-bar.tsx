@@ -10,7 +10,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
@@ -19,8 +18,8 @@ import type { AnalysisMode } from "@/types/conversation";
 
 const primaryStatusToneMap = {
   "未开始": "neutral",
-  "AI分析总结中": "info",
-  "人工处理中": "warning",
+  "话中处理": "info",
+  "话后处理": "warning",
   "处理完成": "success",
 } as const;
 
@@ -44,29 +43,24 @@ export function TopStatusBar() {
     currentTurnIndex,
     totalTurns,
   });
-  const selectedScenarioOption = SCENARIO_OPTIONS.some(
+  const selectedScenarioOption = SCENARIO_OPTIONS.find(
     (item) => item.value === selectedScenario,
-  )
-    ? selectedScenario
-    : undefined;
+  );
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/95 px-5 py-3 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-4">
-          <div>
-            <p className="text-2xl font-extrabold tracking-tight text-slate-900 lg:text-[30px]">
+        <div className="flex items-start gap-6">
+          <div className="min-w-0">
+            <p className="text-[30px] font-extrabold tracking-[-0.03em] text-slate-900 lg:text-[34px]">
               {topBarViewModel.systemName}
             </p>
-            <p className="text-sm font-medium text-slate-600">
+            <p className="mt-1.5 pl-0.5 text-[15px] font-medium tracking-[0.01em] text-slate-500">
               {topBarViewModel.subtitle}
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              {topBarViewModel.workflowHint}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-center lg:mt-0">
             <span className="text-xs font-medium text-slate-500">处理状态</span>
             <StatusBadge
               label={topBarViewModel.processingStatus}
@@ -83,26 +77,18 @@ export function TopStatusBar() {
             className="px-3"
           />
 
-          <StatusBadge
-            label={`Agent：${topBarViewModel.agentStatusLabel}`}
-            tone="info"
-            className="px-3"
-          />
-
-          <div className="inline-flex h-9 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600">
-            {topBarViewModel.turnProgressLabel}
-          </div>
-
           <Select
-            value={selectedScenarioOption}
+            value={selectedScenarioOption?.value}
             onValueChange={(value) => {
               const matched = SCENARIO_OPTIONS.find((item) => item.value === value);
               if (!matched) return;
               setScenario(matched.value);
             }}
           >
-            <SelectTrigger className="h-9 w-[300px] rounded-xl border-slate-200 bg-white text-sm text-slate-800">
-              <SelectValue placeholder="场景选择" />
+            <SelectTrigger className="h-9 w-[236px] rounded-xl border-slate-200/60 bg-slate-50/45 text-sm text-slate-800 shadow-none">
+              <span className="truncate text-left">
+                {selectedScenarioOption?.label || "场景选择"}
+              </span>
             </SelectTrigger>
             <SelectContent>
               {SCENARIO_OPTIONS.map((item) => (

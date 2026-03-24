@@ -72,9 +72,9 @@ export function NextActionCard({
 
   if (!visible) {
     return (
-      <SectionCard title="下一步处置建议" description="会后推荐的后续处理方式" tone="default">
+      <SectionCard title="下一步处置建议" description="话后推荐的后续处理方式" tone="default">
         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-          会话进入收口阶段后，这里会给出下一步处置建议。
+          会话进入话后归档阶段后，这里会给出下一步处置建议。
         </div>
       </SectionCard>
     );
@@ -95,18 +95,12 @@ export function NextActionCard({
         />
       }
     >
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <p className="text-xs text-slate-500">当前处理路径</p>
-          <p className="mt-1 text-sm font-semibold text-slate-900">{nextAction.actionPath}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <p className="text-xs text-slate-500">当前执行方式</p>
-          <p className="mt-1 text-sm font-semibold text-slate-900">{nextAction.actionType}</p>
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge label={nextAction.actionPath} tone="neutral" />
+        <StatusBadge label={nextAction.actionType} tone="neutral" />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-xs text-slate-500">推荐动作</p>
         <div className="mt-1">
           <Select
@@ -114,7 +108,7 @@ export function NextActionCard({
             onValueChange={(value) => setSelectedAction(value as NextDispositionAction)}
             disabled={isSubmitted}
           >
-            <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-white text-sm font-semibold text-slate-900">
+            <SelectTrigger className="h-9 rounded-xl border-slate-200/65 bg-slate-50/40 text-sm font-semibold text-slate-900">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -128,7 +122,7 @@ export function NextActionCard({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-xs text-slate-500">建议优先级</p>
         <div className="mt-1">
           <Select
@@ -136,7 +130,7 @@ export function NextActionCard({
             onValueChange={(value) => setEditablePriority(value ?? "中")}
             disabled={isSubmitted}
           >
-            <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-white text-sm font-semibold text-slate-900">
+            <SelectTrigger className="h-9 rounded-xl border-slate-200/65 bg-slate-50/40 text-sm font-semibold text-slate-900">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -150,37 +144,37 @@ export function NextActionCard({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-xs text-slate-500">下一步建议</p>
         <Textarea
           value={editableNextStepAdvice}
           onChange={(event) => setEditableNextStepAdvice(event.target.value)}
           disabled={isSubmitted}
-          className="mt-1 min-h-[74px] rounded-lg border-slate-200 text-sm leading-6 text-slate-800"
+          className="mt-1 min-h-[74px] rounded-2xl border-slate-200/65 bg-slate-50/40 text-sm leading-6 text-slate-800 shadow-none"
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-xs text-slate-500">推荐原因</p>
         <Textarea
           value={editableRecommendedReason}
           onChange={(event) => setEditableRecommendedReason(event.target.value)}
           disabled={isSubmitted}
-          className="mt-1 min-h-[74px] rounded-lg border-slate-200 text-sm leading-6 text-slate-800"
+          className="mt-1 min-h-[74px] rounded-2xl border-slate-200/65 bg-slate-50/40 text-sm leading-6 text-slate-800 shadow-none"
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-[11px] text-slate-400">命中SOP</p>
         <Input
           value={editableSopTitle}
           onChange={(event) => setEditableSopTitle(event.target.value)}
           disabled={isSubmitted}
-          className="mt-1 h-9 rounded-lg border-slate-200 bg-white text-xs text-slate-600"
+          className="mt-1 h-9 rounded-xl border-slate-200/65 bg-slate-50/40 text-xs text-slate-600 shadow-none"
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+      <div className="rounded-2xl bg-slate-50/70 px-3 py-2.5">
         <p className="mb-2 text-xs text-slate-500">建议确认</p>
         <div className="flex flex-wrap items-center gap-2">
           <Button

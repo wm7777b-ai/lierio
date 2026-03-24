@@ -23,9 +23,9 @@ export function FeedbackClosureCard({
 
   if (!visible) {
     return (
-      <SectionCard title="反馈沉淀" description="会后沉淀状态" tone="default">
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-          会后收口后，这里显示沉淀结果。
+      <SectionCard title="反馈沉淀" description="话后沉淀状态" tone="default">
+        <div className="rounded-2xl border border-dashed border-slate-200/70 bg-slate-50/45 px-4 py-5 text-sm text-slate-500">
+          话后归档后，这里显示沉淀结果。
         </div>
       </SectionCard>
     );
@@ -44,7 +44,7 @@ export function FeedbackClosureCard({
         />
       }
     >
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+      <div className="border-b border-slate-100 pb-3">
         <p className="text-xs text-slate-500">是否沉淀知识库</p>
         <p className="mt-1 text-sm font-semibold text-slate-900">
           {showFinalStatus
@@ -55,7 +55,7 @@ export function FeedbackClosureCard({
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+      <div className="pb-1">
         <p className="text-xs text-slate-500">是否回流badcase</p>
         <p className="mt-1 text-sm font-semibold text-slate-900">
           {showFinalStatus

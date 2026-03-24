@@ -13,20 +13,45 @@ import type { ConversationRoundViewModel } from "@/types/workbench-view-model";
 interface ConversationTimelineCardProps {
   rounds: ConversationRoundViewModel[];
   stage: PageStage;
+  onSelectRound: (turnIndex: number) => void;
 }
 
 export function ConversationTimelineCard({
   rounds,
   stage,
+  onSelectRound,
 }: ConversationTimelineCardProps) {
   const visible = hasReachedStage(stage, "monitoring");
-  const activeRoundRef = useRef<HTMLDivElement | null>(null);
   const reachedCount = rounds.filter((item) => item.isReached).length;
+  const scrollAreaHostRef = useRef<HTMLDivElement | null>(null);
+  const activeRoundRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    activeRoundRef.current?.scrollIntoView({
+    const viewport = scrollAreaHostRef.current?.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLDivElement | null;
+    const activeRoundElement = activeRoundRef.current;
+
+    if (!viewport || !activeRoundElement) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const activeRect = activeRoundElement.getBoundingClientRect();
+    const padding = 16;
+    const isAbove = activeRect.top < viewportRect.top + padding;
+    const isBelow = activeRect.bottom > viewportRect.bottom - padding;
+
+    if (!isAbove && !isBelow) return;
+
+    const activeTop =
+      activeRect.top - viewportRect.top + viewport.scrollTop;
+    const targetTop = Math.max(
+      0,
+      activeTop - viewport.clientHeight / 2 + activeRoundElement.clientHeight / 2,
+    );
+
+    viewport.scrollTo({
+      top: targetTop,
       behavior: "smooth",
-      block: "nearest",
     });
   }, [rounds]);
 
@@ -52,12 +77,13 @@ export function ConversationTimelineCard({
       }
     >
       {!visible ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-slate-200/70 bg-slate-50/45 px-4 py-8 text-sm text-slate-500">
           开始分析后展示逐轮会话变化。
         </div>
       ) : (
-        <ScrollArea className="h-[520px] pr-2">
-          <div className="space-y-3">
+        <div ref={scrollAreaHostRef}>
+          <ScrollArea className="h-[520px] pr-2">
+            <div className="space-y-3">
             {rounds.map((round, index) => {
               return (
                 <div
@@ -77,11 +103,13 @@ export function ConversationTimelineCard({
                     ) : null}
                   </div>
 
-                  <div
+                  <button
+                    type="button"
+                    onClick={() => onSelectRound(index)}
                     className={cn(
-                      "rounded-2xl border border-slate-200/80 bg-slate-50/65 px-3.5 py-2.5",
+                      "w-full rounded-2xl border border-slate-200/55 bg-white/55 px-3.5 py-2.5 text-left transition-colors hover:border-slate-300/70 hover:bg-white/75",
                       round.isActive &&
-                        "border-blue-200/90 bg-blue-50/65 shadow-[0_10px_20px_-14px_rgba(37,99,235,0.35)]",
+                        "border-blue-200/70 bg-blue-50/45 shadow-[0_8px_16px_-16px_rgba(37,99,235,0.18)]",
                       !round.isReached && "opacity-60",
                     )}
                   >
@@ -111,13 +139,13 @@ export function ConversationTimelineCard({
                     </div>
 
                     <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-                      <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
+                      <div className="rounded-xl border border-slate-200/55 bg-slate-50/45 px-2.5 py-1.5">
                         <p className="text-[11px] text-slate-500">当轮诉求</p>
                         <p className="mt-0.5 text-[13px] font-medium text-slate-800">
                           {round.demandDelta}
                         </p>
                       </div>
-                      <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
+                      <div className="rounded-xl border border-slate-200/55 bg-slate-50/45 px-2.5 py-1.5">
                         <p className="text-[11px] text-slate-500">当轮情绪</p>
                         <p
                           className={cn(
@@ -129,12 +157,13 @@ export function ConversationTimelineCard({
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
               );
             })}
-          </div>
-        </ScrollArea>
+            </div>
+          </ScrollArea>
+        </div>
       )}
     </SectionCard>
   );

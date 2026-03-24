@@ -2,8 +2,8 @@ import type { AnalysisMode } from "@/types/conversation";
 
 export type ProcessingStatus =
   | "未开始"
-  | "AI分析总结中"
-  | "人工处理中"
+  | "话中处理"
+  | "话后处理"
   | "处理完成";
 
 export interface TopBarViewModel {

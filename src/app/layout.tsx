@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "客服 / 外呼会话智能处置台",
+  title: "会话分析处置台",
   description: "AI 副驾驶工作台基础工程（Phase 0）",
 };
 

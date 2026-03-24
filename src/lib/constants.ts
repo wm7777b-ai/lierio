@@ -1,5 +1,5 @@
 export const APP_META = {
-  name: "客服 / 外呼会话智能处置台",
+  name: "会话分析处置台",
   phase: "Phase 0 Scaffold",
 } as const;
 

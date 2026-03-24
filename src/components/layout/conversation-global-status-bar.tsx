@@ -69,7 +69,7 @@ export function ConversationGlobalStatusBar() {
 
   return (
     <section className="mx-auto mt-4 w-full max-w-[1720px] px-5">
-      <div className="rounded-3xl border border-slate-200/75 bg-white/90 px-4 py-3 shadow-[0_10px_24px_-20px_rgba(15,23,42,0.18)] backdrop-blur-sm">
+      <div className="rounded-[28px] border border-slate-200/65 bg-white/88 px-4 py-3 shadow-[0_8px_18px_-20px_rgba(15,23,42,0.12)] backdrop-blur-sm">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-sm font-semibold tracking-tight text-slate-900">
             用户基本信息
@@ -84,7 +84,7 @@ export function ConversationGlobalStatusBar() {
           ) : null}
         </div>
 
-        <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 px-3 py-2.5">
+        <div className="rounded-2xl border border-slate-200/55 bg-slate-50/45 px-3 py-2.5">
           <p className="mb-2 text-xs font-semibold text-slate-600">当前接入信息</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8">
             <div>
@@ -120,11 +120,11 @@ export function ConversationGlobalStatusBar() {
               <FieldValue value={basicInfo.callDuration} />
             </div>
             <div>
-              <p className="text-[11px] font-normal text-slate-500">设备信息 / 故障报码</p>
+              <p className="text-[11px] font-normal text-slate-500">设备与事件信息</p>
               <FieldValue
                 value={
                   edgeCloud.enabled
-                    ? "会话相关上下文见下方端云协同信息"
+                    ? "会话相关上下文见下方设备与事件信息"
                     : "设备信息待同步 / 故障码待回传"
                 }
                 className="text-slate-700"
@@ -142,7 +142,7 @@ export function ConversationGlobalStatusBar() {
           ) : null}
         </div>
 
-        <div className="mt-3 rounded-2xl border border-slate-200/70 bg-white px-3 py-2.5">
+        <div className="mt-3 rounded-2xl border border-slate-200/55 bg-white/60 px-3 py-2.5">
           <p className="mb-2 text-xs font-semibold text-slate-600">历史咨询信息</p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <div>
@@ -170,8 +170,8 @@ export function ConversationGlobalStatusBar() {
         </div>
 
         {edgeCloud.enabled ? (
-          <div className="mt-3 rounded-2xl border border-slate-200/70 bg-slate-50/70 px-3 py-2.5">
-            <p className="mb-2 text-xs font-semibold text-slate-600">端云协同信息</p>
+          <div className="mt-3 rounded-2xl border border-slate-200/55 bg-slate-50/45 px-3 py-2.5">
+            <p className="mb-2 text-xs font-semibold text-slate-600">设备与事件信息</p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
               <div>
                 <p className="text-[11px] font-normal text-slate-500">绑定设备</p>

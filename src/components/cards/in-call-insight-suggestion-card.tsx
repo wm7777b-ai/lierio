@@ -28,13 +28,13 @@ export function InCallInsightSuggestionCard({
   return (
     <SectionCard
       title="话中识别与建议"
-      description="会中识别结果与当前建议"
+      description="话中识别结果与当前建议"
       tone="active"
       className={cn(insight.weakDisplay && "opacity-95")}
     >
       {!visible ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-          开始分析后展示会中识别与建议。
+          开始分析后展示话中识别与建议。
         </div>
       ) : (
         <>

@@ -96,7 +96,7 @@ export const PAGE_STAGE_FLOW: PageStage[] = [
 
 export const PAGE_STAGE_LABELS: Record<PageStage, string> = {
   idle: "未开始分析",
-  monitoring: "会中监测中",
+  monitoring: "话中监测中",
   drafting: "草稿生成中",
   resolving: "处置建议生成中",
   reviewing: "质量评估中",
@@ -364,7 +364,8 @@ const normalizeSnapshots = (
       decision: {
         shouldEscalate:
           nextSuggestion.recommendedAction === "升级处理" ||
-          normalizePriority(nextSuggestion.suggestedPriority) === "高",
+          (riskLevel === "高" &&
+            round.recognitionResult.suggestionLevel === "强烈建议关注"),
         recommendedAction: nextSuggestion.recommendedAction,
         priority: normalizePriority(nextSuggestion.suggestedPriority),
         nextStep: nextSuggestion.nextStepAdvice,
@@ -538,7 +539,7 @@ export const PRIORITY_OPTIONS = ["低", "中", "高"];
 export const getCaseHeaderById = (caseId: string) => {
   const rawCase = RAW_CASE_MAP.get(caseId);
   return {
-    systemName: rawCase?.header?.systemName || "会话实时处置台",
+    systemName: rawCase?.header?.systemName || "会话分析处置台",
     moduleName: rawCase?.header?.moduleName || "客服",
     totalTurns: rawCase?.header?.totalTurns ?? rawCase?.rounds?.length ?? 0,
   };
