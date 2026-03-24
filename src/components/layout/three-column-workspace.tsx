@@ -28,6 +28,7 @@ export function ThreeColumnWorkspace() {
   const resolutionState = useConversationStore((state) => state.resolutionState);
   const reviewState = useConversationStore((state) => state.reviewState);
   const analysisMode = useConversationStore((state) => state.analysisMode);
+  const jumpToTurn = useConversationStore((state) => state.jumpToTurn);
   const editableCaseDetail = useConversationStore((state) => state.editableCaseDetail);
   const editableRiskPoint = useConversationStore((state) => state.editableRiskPoint);
   const editableTicketTitle = useConversationStore((state) => state.editableTicketTitle);
@@ -100,6 +101,7 @@ export function ThreeColumnWorkspace() {
           <ConversationTimelineCard
             rounds={viewModel.conversationRounds}
             stage={pageStage}
+            onSelectRound={jumpToTurn}
           />
         </motion.div>
 
@@ -116,6 +118,7 @@ export function ThreeColumnWorkspace() {
         >
           <ConversationUnderstandingDispositionCard
             stage={pageStage}
+            currentTurnIndex={currentTurnIndex}
             insight={viewModel.inCallInsightSuggestion}
             disposition={viewModel.postDisposition}
             ticketTitle={editableTicketTitle}

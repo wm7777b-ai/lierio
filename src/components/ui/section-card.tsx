@@ -19,13 +19,13 @@ interface SectionCardProps {
 }
 
 const toneStyle = {
-  default: "ring-slate-200/80 shadow-[0_10px_24px_-20px_rgba(15,23,42,0.18)]",
+  default: "ring-slate-200/65 shadow-[0_8px_18px_-20px_rgba(15,23,42,0.12)]",
   focus:
-    "ring-slate-200/85 shadow-[0_12px_26px_-20px_rgba(30,64,175,0.2)]",
+    "ring-slate-200/70 shadow-[0_10px_20px_-20px_rgba(30,64,175,0.12)]",
   active:
-    "ring-blue-200/80 shadow-[0_14px_30px_-22px_rgba(37,99,235,0.26)]",
+    "ring-blue-200/65 shadow-[0_10px_22px_-22px_rgba(37,99,235,0.14)]",
   stable:
-    "ring-emerald-200/75 shadow-[0_12px_26px_-22px_rgba(5,150,105,0.22)]",
+    "ring-emerald-200/65 shadow-[0_10px_22px_-22px_rgba(5,150,105,0.14)]",
 } as const;
 
 export function SectionCard({
@@ -39,12 +39,12 @@ export function SectionCard({
   return (
     <Card
       className={cn(
-        "rounded-3xl border border-slate-200/75 bg-white/95 backdrop-blur-sm",
+        "rounded-[28px] border border-slate-200/65 bg-white/92 backdrop-blur-sm",
         toneStyle[tone],
         className,
       )}
     >
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle className="text-[15px] font-semibold tracking-tight text-slate-900">
@@ -59,7 +59,7 @@ export function SectionCard({
           {headerExtra}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3.5">{children}</CardContent>
+      <CardContent className="space-y-3">{children}</CardContent>
     </Card>
   );
 }

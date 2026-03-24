@@ -16,9 +16,9 @@ export function MonitoringCard({ monitoring, stage }: MonitoringCardProps) {
 
   if (!visible) {
     return (
-      <SectionCard title="会中监测" description="当前主诉求、情绪和风险信号" tone="focus">
+      <SectionCard title="话中监测" description="当前主诉求、情绪和风险信号" tone="focus">
         <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 px-4 py-6 text-sm text-blue-700">
-          点击“开始分析”后进入会中监测阶段。
+          点击“开始分析”后进入话中监测阶段。
         </div>
       </SectionCard>
     );
@@ -26,7 +26,7 @@ export function MonitoringCard({ monitoring, stage }: MonitoringCardProps) {
 
   return (
     <SectionCard
-      title="会中监测"
+      title="话中监测"
       description="当前主诉求、情绪和风险信号"
       tone={stage === "monitoring" ? "active" : "focus"}
       headerExtra={<StatusBadge label={`情绪：${monitoring.emotion}`} tone={highRisk ? "danger" : "warning"} />}
